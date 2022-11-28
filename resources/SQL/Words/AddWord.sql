@@ -1,0 +1,1 @@
+INSERT INTO words (DAY_DATE, WORD) VALUES ([day_date_value], [word_value])

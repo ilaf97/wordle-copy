@@ -1,0 +1,1 @@
+INSERT INTO users(EMAIL, JOIN_DATE) VALUES ([email_value], [join_date_value])
