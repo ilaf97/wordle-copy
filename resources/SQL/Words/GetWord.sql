@@ -1,0 +1,1 @@
+SELECT WORD FROM WORDS WHERE DAY_DATE = [day_date_value]

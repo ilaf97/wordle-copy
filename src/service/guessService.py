@@ -1,4 +1,9 @@
-from resources import GuessesTable
+import logging
+
+from resources import GuessesTable, WordsTable
+from datetime import datetime
+from src.model.guessModel import Guess
+from src.model import db
 
 
 class GuessService:
@@ -28,6 +33,7 @@ class GuessService:
 		self.word = ''
 		self.guess_str = ''
 		self.guess_num = 0
+		self.__query = db.session.query_property()
 
 	def add_guess(self, user_id: str):
 		"""
@@ -40,15 +46,27 @@ class GuessService:
 			ValueError: if no guess has been made
 		"""
 		if len(self.guess_str) < 5:
-			raise ValueError("Guess string is empty")
+			e =  ValueError("Guess string is empty")
+			logging.warning(e)
 		else:
-			guess_list = self.guess_str.split('\n')
-			self.__guess_table.add_user_guess(user_id, guess_list)
+			guess = Guess(user_id=user_id,
+						  guess_str=self.guess_str)
+			db.session.add(guess)
+			db.session.commit()
+			logging.info('New guess added')
+
+	@staticmethod
+	def get_guess(date: datetime.date, user_id: int) -> str:
+		try:
+			return Guess.query.filter_by(Guess.guess_date.contains(date), user_id=user_id).guess
+		except Exception as e:
+			logging.warning('Cannot retrieve guess from database')
+			logging.warning(e)
 
 	def retrieve_word(self):
-		# Implement getter from database
-		# Put in word service?
-		pass
+		date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+		wt = WordsTable.WordsTable()
+		self.word = wt.get_word(date)
 
 	def handle_guess(self, guess: str):
 		"""
@@ -65,7 +83,7 @@ class GuessService:
 		else:
 			raise IndexError("You cannot guess more than 6 times!")
 
-	def convert_to_emoji(self) -> str:
+	def convert_to_emoji(self, letter_scores: str) -> str:
 		"""
 		Converts a complete user guess to a string of emojis representing the
 		accuracy of the guesses.
@@ -74,7 +92,7 @@ class GuessService:
 			emoji_str (str): The emoji representation of the guesses
 		"""
 		emoji_str = ''
-		for letter_score in self.guess_str:
+		for letter_score in letter_scores:
 			if letter_score == '\n':
 				emoji_str = emoji_str + '\n'
 			elif letter_score == 2:
@@ -85,7 +103,7 @@ class GuessService:
 				emoji_str = emoji_str + self.emojis['incorrect_letter']
 		return emoji_str
 
-	def __check_guess(self, guess):
+	def check_guess(self, guess):
 		"""
 		Checks the guess against the known word to assess the correctness.
 		"""
@@ -95,5 +113,4 @@ class GuessService:
 				letter_scores = letter_scores[:i] + 2 + letter_scores[i + 1:]
 			elif guess[i] in self.word:
 				letter_scores = letter_scores[:i] + 1 + letter_scores[i + 1:]
-		self.guess_str = self.guess_str + letter_scores + '\n'
-		self.guess_num += 1
+		return self.convert_to_emoji(letter_scores)
