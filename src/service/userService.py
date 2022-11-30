@@ -11,7 +11,7 @@ class UserService:
 
 	@staticmethod
 	def add_user(email: str, username: str):
-		# TODO: apply checks to email and username
+		# Validation checks handled at endpoint
 		try:
 			user = User(username=username,
 				 email=email)
@@ -23,6 +23,3 @@ class UserService:
 			logging.fatal('Cannot add new user to database')
 			logging.fatal(e)
 			return e
-
-	def update_user_email(self, email, user_id):
-		self.__user_table.update_user(email, user_id)
