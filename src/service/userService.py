@@ -18,9 +18,11 @@ class UserService:
 			db.session.add(user)
 			db.session.commit()
 			logging.info('New user added')
+			return 'Success'
 		except Exception as e:
 			logging.fatal('Cannot add new user to database')
 			logging.fatal(e)
+			return e
 
 	def update_user_email(self, email, user_id):
 		self.__user_table.update_user(email, user_id)

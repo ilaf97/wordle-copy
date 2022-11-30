@@ -1,6 +1,7 @@
 import random
 from src.model.wordModel import Word
 from src.model import db
+from src.utils.validations import Validators
 import logging
 
 
@@ -12,15 +13,9 @@ class WordService:
 
 	@staticmethod
 	def add_word(word: str):
-
-		if len(word) != 5:
-			e = ValueError('Word is not the required 5 character length')
-			logging.warning(e)
-
-		if not word.isalpha():
-			e = ValueError('Word contains non alphabetic characters')
-			logging.warning(e)
-
+		word_check = Validators.word(word)
+		if word_check:
+			logging.warning(word_check)
 		else:
 			try:
 				word = Word(word)
@@ -30,6 +25,24 @@ class WordService:
 			except Exception as e:
 				logging.fatal('Cannot add new word to database')
 				logging.fatal(e)
+
+	@staticmethod
+	def get_word(date):
+		try:
+			return Word.query.filter_by(Word.date.contains(date)).word
+		except Exception as e:
+			logging.warning('Cannot retrieve word from database')
+			logging.warning(e)
+			return e
+
+	def select_word(self) -> str:
+		random_num = random.randint(1, self.word_count)
+		with open(self.word_list) as f:
+			for index, line in enumerate(f, start=1):
+				if index == random_num:
+					word = f.readline()
+					self.__delete_word_from_list(word)
+		return word
 
 	def __open_word_list_file(self) -> list[str]:
 		try:
@@ -51,15 +64,6 @@ class WordService:
 		except Exception as e:
 			logging.warning('Could not open word_list file')
 			logging.warning(e)
-
-	def select_word(self) -> str:
-		random_num = random.randint(1, self.word_count)
-		with open(self.word_list) as f:
-			for index, line in enumerate(f, start=1):
-				if index == random_num:
-					word = f.readline()
-					self.__delete_word_from_list(word)
-		return word
 
 
 

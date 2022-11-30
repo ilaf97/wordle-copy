@@ -1,6 +1,6 @@
 import logging
-
-from resources import GuessesTable, WordsTable
+from typing import Union
+from resources import GuessesTable
 from datetime import datetime
 from src.model.guessModel import Guess
 from src.model import db
@@ -35,7 +35,7 @@ class GuessService:
 		self.guess_num = 0
 		self.__query = db.session.query_property()
 
-	def add_guess(self, user_id: str):
+	def add_guess(self, user_id: str) -> Union[None, Exception]:
 		"""
 		Adds user's final guesses to database.
 
@@ -45,43 +45,27 @@ class GuessService:
 		Raises:
 			ValueError: if no guess has been made
 		"""
-		if len(self.guess_str) < 5:
-			e =  ValueError("Guess string is empty")
-			logging.warning(e)
-		else:
+		try:
 			guess = Guess(user_id=user_id,
 						  guess_str=self.guess_str)
 			db.session.add(guess)
 			db.session.commit()
 			logging.info('New guess added')
+			return 'Success'
+		except Exception as e:
+				logging.fatal('Cannot add new guess to database')
+				logging.fatal(e)
+				return e
 
 	@staticmethod
-	def get_guess(date: datetime.date, user_id: int) -> str:
+	def get_guesses(date: datetime.date, user_id: int) -> Union[str, Exception]:
 		try:
-			return Guess.query.filter_by(Guess.guess_date.contains(date), user_id=user_id).guess
+			return Guess.query.filter_by(Guess.guess_date.contains(date), user_id=user_id).guess_str
 		except Exception as e:
 			logging.warning('Cannot retrieve guess from database')
 			logging.warning(e)
+			return e
 
-	def retrieve_word(self):
-		date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-		wt = WordsTable.WordsTable()
-		self.word = wt.get_word(date)
-
-	def handle_guess(self, guess: str):
-		"""
-		Handles a user's guess.
-
-		Parameters:
-			guess (str): a single, individual guess
-
-		Raises:
-			ValueError: if user attempts to make more than 6 guesses
-		"""
-		if self.guess_num < 6:
-			self.__check_guess(guess)
-		else:
-			raise IndexError("You cannot guess more than 6 times!")
 
 	def convert_to_emoji(self, letter_scores: str) -> str:
 		"""
