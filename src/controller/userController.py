@@ -12,7 +12,8 @@ class UserController:
 	@app.route('user/add-user/<str:email>/<str:username>', methods=['POST'])
 	def add_user(self, email: str, username: str) -> Any:
 		if username > 20:
-			app.make_response('Username too long', 401)
+			return app.make_response('Username too long', 401)
+
 		email_check = Validators.email(email)
 		if email_check:
 			return app.make_response(email_check, 401)
