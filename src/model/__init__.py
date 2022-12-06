@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from app import app
 import logging
 
-db = SQLAlchemy(app)
+
+db = SQLAlchemy()
 logging.info('Database instance initialised')

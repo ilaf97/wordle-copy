@@ -1,7 +1,6 @@
-from Tables import Table
+from resources.Tables import Table
 from datetime import datetime
 import logging
-
 
 
 class GuessesTable(Table):
@@ -45,4 +44,4 @@ class GuessesTable(Table):
 		logging.info('User guess added')
 		self.close_connection(conn)
 
-	#TODO: get user guess from DB
+# TODO: get user guess from DB

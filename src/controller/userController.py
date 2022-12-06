@@ -15,7 +15,7 @@ class UserController:
 			return app.make_response('Username too long', 401)
 
 		email_check = Validators.email(email)
-		if email_check:
+		if email_check != email:
 			return app.make_response(email_check, 401)
 
 		response = self.__user_service.add_user(email, username)

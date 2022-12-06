@@ -10,24 +10,25 @@ class GuessController:
 		self.__guess_service = guessService.GuessService()
 
 	@app.route('guess/add-guess/<str:guess>', methods=['POST'])
-	def add_guess(self, guess: str) -> Any:
+	#TODO: this needs to add letter score representation only
+	def add_guesses(self, guess: str) -> Any:
 		word_check = Validators.word(guess)
 		if word_check:
 			return app.make_response(word_check, 401)
 
-		response = self.__guess_service.add_guess(guess)
+		response = self.__guess_service.add_guess(guess.lower())
 		if response != 'Success':
 			return app.make_response(response, 500)
 
 		return app.make_response(response)
 
-	@app.route('guess/check-single-guess/<str:guess>', methods=['GET'])
+	@app.route('guess/check-single-guess/<str:guess>/<str:word>', methods=['GET'])
 	def check_guess(self, guess: str) -> Any:
 		word_check = Validators.word(guess)
 		if word_check:
 			return app.make_response(word_check, 401)
 
-		guess_score = self.__guess_service.check_guess(guess)
+		guess_score = self.__guess_service.check_guess(guess.lower())
 		app.make_response(guess_score)
 
 	@app.route('guess/get-summary-for-date/<str:date>/<int:user_id>', methods=['GET'])

@@ -3,6 +3,7 @@ from resources import UsersTable
 from src.model.userModel import User
 from src.model import db
 
+
 class UserService:
 
 	def __init__(self):

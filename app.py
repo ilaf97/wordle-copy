@@ -11,6 +11,8 @@ from src.model.guessModel import Guess
 from src.model.wordModel import Word
 from src.model.userModel import User
 
+db.init_app(app)
+
 with app.app_context():
 	db.create_all()
 	logging.info(f'New database tables created:\n'
