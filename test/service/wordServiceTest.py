@@ -6,8 +6,8 @@ from test.test_data import test_word_list, empty_word_list
 
 
 class TestWordService(unittest.TestCase):
+
 	__word_service = WordService()
-	mock_word_list = 'test/data/test_word_list.txt'
 
 	def test_get_current_date(self):
 		with freeze_time('2022-01-01'):

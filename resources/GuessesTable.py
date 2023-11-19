@@ -44,4 +44,3 @@ class GuessesTable(Table):
 		logging.info('User guess added')
 		self.close_connection(conn)
 
-# TODO: get user guess from DB

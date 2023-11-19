@@ -24,5 +24,4 @@ class UserController:
 
 		return app.make_response(response)
 
-	#TODO: implement update_email endpoint
 

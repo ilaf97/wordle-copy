@@ -23,7 +23,6 @@ class Validators:
 
 	@staticmethod
 	def word(word: str) -> Union[None, ValidationError]:
-		is_alpha = word.isalpha()
 		validator = validate.And(
 			validate.Length(
 				equal=5,

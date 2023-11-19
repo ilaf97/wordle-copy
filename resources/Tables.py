@@ -2,13 +2,11 @@ import os
 import psycopg2
 import logging
 from typing import Tuple, TextIO
-from flask_sqlalchemy import SQLAlchemy
 
 
 class Table:
 
 	def __init__(self):
-		# TODO: move conn to main script/service
 		self.create_users_guesses_table_sql = 'SQL/Guesses/CreateGuessesTable.sql'
 		self.create_users_table_sql = 'SQL/Users/CreateUsersTable.sql'
 		self.create_words_table_sql = 'SQL/Words/CreateWordsTable.sql'
@@ -16,7 +14,6 @@ class Table:
 		self.add_user_guess_sql = 'SQL/Guesses/AddGuess.sql'
 		self.update_user_sql = 'SQL/Users/UpdateUser.sql'
 		self.add_word_sql = 'SQL/Words/AddWord.sql'
-
 
 	@staticmethod
 	def open_connection():
@@ -29,7 +26,7 @@ class Table:
 			logging.fatal(e)
 
 	@staticmethod
-	def close_connection(connection: None):
+	def close_connection(connection):
 		connection.close()
 		logging.info('Database connection closed')
 
@@ -52,5 +49,3 @@ class Table:
 				logging.warning(e)
 		file.close()
 		self.close_connection(conn)
-
-

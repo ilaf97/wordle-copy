@@ -44,7 +44,6 @@ class WordsTable(Table):
 					'[day_date_value]',
 					date
 				)
-				#TODO: Check if can run SQL query searching only on date
 				cur.execute(sql_command)
 				word = cur.fetchone()
 		except Exception as e:

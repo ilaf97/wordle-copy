@@ -1,6 +1,10 @@
 import os
+
+import sqlalchemy
 from flask import Flask
 import logging
+
+from sqlalchemy.engine import url
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
