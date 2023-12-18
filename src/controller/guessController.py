@@ -8,22 +8,19 @@ guess_service = guessService.GuessService()
 
 @app.route('/guess/add-guess/<string:guess>', methods=['POST'])
 def add_guesses(guess: str) -> Any:
-	word_check = Validators.word(guess)
-	if word_check != guess:
-		return app.make_response(word_check)
+	valid_word = Validators.word(guess)
+	if guess != valid_word:
+		return app.make_response(valid_word)
 
 	response = guess_service.add_guess(guess.lower())
-	if response != 'Success':
-		return app.make_response(response)
-
 	return app.make_response(response)
 
 
 @app.route('/guess/check-single-guess/<string:guess>/', methods=['GET'])
 def check_guess(guess: str) -> Any:
-	word_check = Validators.word(guess)
-	if word_check != guess:
-		return app.make_response(word_check)
+	valid_word = Validators.word(guess)
+	if guess != valid_word:
+		return app.make_response(valid_word)
 
 	guess_score = guess_service.check_guess(guess.lower())
 	return app.make_response(guess_score)

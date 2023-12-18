@@ -37,10 +37,10 @@ class GuessesTable(Table):
 				)
 				cur.execute(sql_command)
 				conn.commit()
+				logging.info('User guess added')
 		except Exception as e:
 			logging.warning('Failed to add guess to database')
 			logging.warning(e)
 		file.close()
-		logging.info('User guess added')
 		self.close_connection(conn)
 

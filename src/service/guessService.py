@@ -46,8 +46,10 @@ class GuessService:
 			ValueError: if no guess has been made
 		"""
 		try:
-			guess = Guess(user_id=user_id,
-						  guess_str=guess_str)
+			guess = Guess(
+				user_id=user_id,
+				guess_str=guess_str
+			)
 			db.session.append(guess)
 			db.session.commit()
 			logging.info('New guess added')
@@ -92,6 +94,8 @@ class GuessService:
 		"""
 		Checks the guess against the known word to assess the correctness.
 		"""
+		# I think this method can be written into front end to use caching with the word to prevent multiple requests
+		# per user. This would otherwise overload the server if many guesses at once
 		word = self.__word_service.get_word()
 		letter_scores = '00000'
 		for i in range(len(guess)):

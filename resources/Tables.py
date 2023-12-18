@@ -1,7 +1,8 @@
 import os
-import psycopg2
 import logging
 from typing import Tuple, TextIO
+
+import psycopg2
 
 
 class Table:

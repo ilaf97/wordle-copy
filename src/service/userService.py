@@ -13,8 +13,10 @@ class UserService:
 	def add_user(email: str, username: str):
 		# Validation checks handled at endpoint
 		try:
-			user = User(username=username,
-				 email=email)
+			user = User(
+				username=username,
+				 email=email
+			)
 			db.session.add(user)
 			db.session.commit()
 			logging.info('New user added')

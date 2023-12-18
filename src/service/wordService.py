@@ -15,9 +15,9 @@ class WordService:
 
 	@staticmethod
 	def add_word(word: str):
-		word_check = Validators.word(word)
-		if word_check:
-			logging.warning(word_check)
+		word_validation_error = Validators.word(word)
+		if word_validation_error:
+			logging.warning(word_validation_error)
 		else:
 			try:
 				word = Word(word)
@@ -25,8 +25,8 @@ class WordService:
 				db.session.commit()
 				logging.info('New word added')
 			except Exception as e:
-				logging.fatal('Cannot add new word to database')
-				logging.fatal(e)
+				logging.error('Cannot add new word to database')
+				logging.error(e)
 
 	def get_word(self, date: str = ''):
 		if date == '':
@@ -39,6 +39,7 @@ class WordService:
 			return e
 
 	def select_word(self) -> str:
+		# This would not be a robust long-term method – improve for demo of architecture understanding
 		random_num = random.randint(1, self.word_count)
 		try:
 			with open(self.word_list) as f:

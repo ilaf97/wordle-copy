@@ -11,13 +11,33 @@ class TestGuessController(unittest.TestCase):
 		self.client = app.test_client()
 
 	@patch.object(WordService, 'get_word')
-	def test_check_guess(self, mock_get_word):
+	def test_check_guess_correct(self, mock_get_word):
+		mock_get_word.return_value = 'river'
+		response = self.client.get('/guess/check-single-guess/river/')
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(
+			response.get_data(as_text=True),
+			'🟩🟩🟩🟩🟩'
+		)
+
+	@patch.object(WordService, 'get_word')
+	def test_check_guess_partially_correct(self, mock_get_word):
 		mock_get_word.return_value = 'river'
 		response = self.client.get('/guess/check-single-guess/dried/')
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(
 			response.get_data(as_text=True),
 			'⬛🟨🟨🟩⬛'
+		)
+
+	@patch.object(WordService, 'get_word')
+	def test_check_guess_incorrect(self, mock_get_word):
+		mock_get_word.return_value = 'river'
+		response = self.client.get('/guess/check-single-guess/blood/')
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(
+			response.get_data(as_text=True),
+			'⬛⬛⬛⬛⬛'
 		)
 
 
