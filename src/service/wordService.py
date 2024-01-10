@@ -82,6 +82,7 @@ class WordService:
 			logging.warning(e)
 
 	def __delete_word_from_list(self, word_to_delete: str):
+		# This seems like a strange way of doing things
 		try:
 			with open(self.word_list, 'w') as f:
 				for line in self.__open_word_list_file():

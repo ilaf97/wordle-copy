@@ -2,7 +2,8 @@ import os
 import sqlalchemy
 from flask import Flask
 import logging
-
+from src.controller.homeController import *
+from src.controller.wordController import *
 from sqlalchemy.engine import url
 
 app = Flask(__name__)
@@ -15,6 +16,8 @@ from src.model.wordModel import Word
 from src.model.userModel import User
 
 db.init_app(app)
+home_route(app)
+word_route(app)
 
 with app.app_context():
 	db.create_all()
