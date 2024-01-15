@@ -1,12 +1,11 @@
-from __main__ import app
 from src.service.wordService import WordService
 
 
-def select_new_word():
+def select_new_word(app):
 	ws = WordService(app)
 	word = ws.select_word()
 	ws.add_word(word)
-	return
+	return word
 
 
 # schedule.every().day.at('00:00').do(select_new_word)

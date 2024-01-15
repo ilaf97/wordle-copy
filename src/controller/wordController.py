@@ -3,9 +3,9 @@ from src.service import wordService
 from src.utils.validations import Validators
 
 
-def word_route(app, db):
+def word_route(app):
 
-	word_service = wordService.WordService(app, db)
+	word_service = wordService.WordService(app)
 
 	@app.route('/word/get-word/', defaults={'date': word_service.get_current_date_str()})
 	@app.route('/word/get-word/<string:date>', methods=['GET'])
