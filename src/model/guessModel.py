@@ -1,4 +1,3 @@
-from sqlalchemy import func
 from src.model import db
 from sqlalchemy import *
 

@@ -2,37 +2,38 @@ import random
 import logging
 from data import word_list
 from src.model.wordModel import Word
-from src.model import db
 from src.utils.validations import Validators
 from datetime import datetime
 
 
 class WordService:
 
-	def __init__(self):
+	def __init__(self, app, db):
 		self.word_list = word_list
-		self.word_count = self.__count_input_lines()  # Initial length of word list
+		self.word_count = self.__count_input_lines() - 1	# Initial length of word list
+		self.__app = app
+		self.__db = db
 
-	@staticmethod
-	def add_word(word: str):
+	def add_word(self, word: str):
 		word_validation_error = Validators.word(word)
-		if word_validation_error:
+		if word_validation_error != word:
 			logging.warning(word_validation_error)
 		else:
 			try:
-				word = Word(word)
-				db.session.add(word)
-				db.session.commit()
-				logging.info('New word added')
+				with self.__app.app_context():
+					word = Word(word=word)
+					self.__db.session.add(word)
+					self.__db.session.commit()
+					logging.info('New word added')
 			except Exception as e:
 				logging.error('Cannot add new word to database')
 				logging.error(e)
 
 	def get_word(self, date: str = ''):
 		if date == '':
-			date = self.__get_current_date_str()
+			date = self.get_current_date_str()
 		try:
-			return Word.query.filter_by(Word.date.contains(date)).word
+			print(Word.query.filter_by(date=Word.date.contains(date)).first())
 		except Exception as e:
 			logging.warning('Cannot retrieve word from database')
 			logging.warning(e)
@@ -40,13 +41,12 @@ class WordService:
 
 	def select_word(self) -> str:
 		# This would not be a robust long-term method – improve for demo of architecture understanding
-		random_num = random.randint(1, self.word_count)
+		random_num = random.randint(0, self.word_count)
 		try:
 			with open(self.word_list) as f:
-				for index, line in enumerate(f, start=1):
+				for index, line in enumerate(f, start=0):
 					if index == random_num:
-						word = f.readline()
-						self.__delete_word_from_list(word)
+						word = line.rstrip()
 		except Exception as e:
 			logging.fatal('Could not open word_list.txt file')
 			logging.fatal(e)
@@ -54,7 +54,7 @@ class WordService:
 		return word
 
 	@staticmethod
-	def __get_current_date_str() -> str:
+	def get_current_date_str() -> str:
 		curr_date = datetime.now()
 		return datetime.strftime(curr_date, '%Y-%m-%d')
 

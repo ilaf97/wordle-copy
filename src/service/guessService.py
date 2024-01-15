@@ -4,7 +4,7 @@ from resources import GuessesTable
 from datetime import datetime
 from src.model.guessModel import Guess
 from src.service.wordService import WordService
-from src.model import db
+from app import db
 
 
 class GuessService:

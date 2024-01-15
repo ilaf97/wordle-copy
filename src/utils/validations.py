@@ -26,10 +26,10 @@ class Validators:
 		validator = validate.And(
 			validate.Length(
 				equal=5,
-				error='Word must be 5 characters'),
+				error=f'Word not 5 characters: {word}'),
 			validate.ContainsOnly(
 				choices=string.ascii_lowercase,
-				error='Word contains non-alphabetic characters'
+				error=f'Word contains non-alphabetic characters: {word}'
 			)
 		)
 		return validator(word)
