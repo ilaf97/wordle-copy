@@ -11,17 +11,23 @@ class UserController:
 
 	@app.route('user/add-user/<str:email>/<str:username>', methods=['POST'])
 	def add_user(self, email: str, username: str) -> Any:
-		if username > 20:
-			return app.make_response('Username too long', 401)
+		if len(username) > 20:
+			response = app.make_response('Username too long')
+			response.status_code = 401
+			return response
 
 		email_check = Validators.email(email)
 		if email_check != email:
-			return app.make_response(email_check, 401)
+			response = app.make_response("Bad email")
+			response.status_code = 401
+			return response
 
 		response = self.__user_service.add_user(email, username)
 		if response != 'Success':
-			return app.make_response(response, 500)
+			#TODOL this should be handled by the service
+			response = app.make_response("Failed to add user to database")
+			response.status_code = 500
 
-		return app.make_response(response)
+		return app.make_response('Scuccessfully added new user')
 
 
