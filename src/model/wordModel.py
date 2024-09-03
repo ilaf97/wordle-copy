@@ -8,3 +8,6 @@ class Word(db.Model):
                   server_default=func.now(),
                   primary_key=True)
     word = Column(String(5), nullable=False)
+
+    def __init__(self, word: str):
+        self.word = word

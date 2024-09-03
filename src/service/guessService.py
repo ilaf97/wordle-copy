@@ -34,7 +34,7 @@ class GuessService:
 		self.__query = db.session.query_property()
 
 	@staticmethod
-	def add_guess(user_id: str, guess_str: str) -> Union[str, Exception]:
+	def add_guess(user_id: int, guesses_str: str) -> Exception | None:
 		"""
 		Adds user's final guesses to database.
 
@@ -48,25 +48,25 @@ class GuessService:
 		try:
 			guess = Guess(
 				user_id=user_id,
-				guess_str=guess_str
+				guess_str=guesses_str
 			)
-			db.session.append(guess)
+			db.session.add(guess)
 			db.session.commit()
 			logging.info('New guess added')
-			return 'Success'
 		except Exception as e:
-			logging.fatal('Cannot add new guess to database')
+			e = f'Cannot add new guess to database for user {user_id}'
 			logging.fatal(e)
-			return e
+			raise IOError(e)
 
 	@staticmethod
-	def get_guesses(date: datetime.date, user_id: int) -> Union[list[str], Exception]:
-		try:
-			return Guess.query.filter_by(Guess.guess_date.contains(date), user_id=user_id).guess_str
-		except Exception as e:
-			logging.warning('Cannot retrieve guess from database')
+	def get_guesses(user_id: int, guess_date: datetime) -> list[str] | None:
+		guess = Guess.query.filter_by(guess_date=guess_date, user_id=user_id).first()
+		if guess is None:
+			e = f'Cannot retrieve guess from database for user {user_id} on {guess_date}'
 			logging.warning(e)
-			return e
+			raise IOError(e)
+		return guess.guess_str
+			
 
 	def convert_to_emoji(self, letter_scores: str) -> str:
 		"""
@@ -77,6 +77,7 @@ class GuessService:
 			emoji_str (str): The emoji representation of the guesses
 		"""
 		emoji_str = ''
+		#TODO: replace with switch
 		for letter_score in letter_scores:
 			if letter_score == '\n':
 				emoji_str = emoji_str + '\n'
@@ -99,7 +100,7 @@ class GuessService:
 		word = self.__word_service.get_word()
 		letter_scores = '00000'
 		for i in range(len(guess)):
-			if guess[i] == word[i]:
+			if guess[i] == word[i]: # type: ignore
 				letter_scores = letter_scores[:i] + '2' + letter_scores[i + 1:]
 			elif guess[i] in word:
 				letter_scores = letter_scores[:i] + '1' + letter_scores[i + 1:]

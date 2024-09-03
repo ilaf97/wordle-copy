@@ -15,6 +15,8 @@ class GuessesTable(Table):
 
 	def add_user_guess(self, user_id: str, guess_list: list):
 		conn = self.open_connection()
+		if conn is None:
+			raise IOError("Database connection could not be opened")
 		sql_command, file = self.__get_command_in_file(self.add_user_guess_sql)
 		date = datetime.now()
 		date_of_guess = date.strftime('%Y-%m-%d %H:%M:%S')
@@ -33,7 +35,7 @@ class GuessesTable(Table):
 					date_of_guess
 				).replace(
 					'[guess_arr_value]',
-					guess_list
+					str(guess_list)
 				)
 				cur.execute(sql_command)
 				conn.commit()

@@ -8,4 +8,8 @@ class User(db.Model):
 	email = Column(String(80), nullable=False)
 	join_date = Column(DateTime(timezone=False),
 						   server_default=func.now())
+	
+	def __init__(self, username, email):
+		self.username = username
+		self.email = email
 

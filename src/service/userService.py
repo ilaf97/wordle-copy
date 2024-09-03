@@ -1,7 +1,7 @@
 import logging
 from resources import UsersTable
 from src.model.userModel import User
-from src.model import db
+from src import db
 
 
 class UserService:
@@ -15,7 +15,7 @@ class UserService:
 		try:
 			user = User(
 				username=username,
-				 email=email
+				email=email
 			)
 			db.session.add(user)
 			db.session.commit()
