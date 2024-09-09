@@ -31,6 +31,10 @@ class ValidatorTest(unittest.TestCase):
 		with self.assertRaises(ValidationError):
 			self.__validators.word(word_not_alpha)
 
+	#TODO: Add body to test
+	def test_final_guess_validator(self):
+		pass
+
 	def test_email_validator(self):
 		email_correct = 'test@test.com'
 		incorrect_cases = {

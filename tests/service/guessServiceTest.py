@@ -42,6 +42,20 @@ class TestGuessService(unittest.TestCase):
 		check_result = self.guess_service.check_guess(test_word)
 		self.assertEqual(check_result, '⬛🟨🟨🟩⬛')
 
+	#TODO: add the body for the below tests once database fixtures have been added
+
+	def test_add_guess(self):
+		pass
+
+	def test_add_guess_database_error(self):
+		pass
+
+	def test_get_guesses(self):
+		pass
+
+	def test_get_guesses_database_error(self):
+		pass
+
 
 if __name__ == '__main__':
 	unittest.main()

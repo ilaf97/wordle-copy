@@ -39,6 +39,26 @@ class TestGuessController(unittest.TestCase):
 			'⬛⬛⬛⬛⬛'
 		)
 
+	def test_check_guess_invalid_word(self):
+		pass
+
+	#TODO: add the body for the below tests once database fixtures have been added
+
+	def test_get_all_guesses_emojis_valid_date(self):
+		pass
+		
+	def test_get_all_guesses_emojis_invalid_date(self):
+		pass
+
+	def test_get_all_guesses_emojis_server_error(self):
+		pass
+
+	def test_add_guesses_valid_format(self):
+		pass
+
+	def test_add_guess_invalid_format(self):
+		pass
+		
 
 if __name__ == '__main__':
 	unittest.main()

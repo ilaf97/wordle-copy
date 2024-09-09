@@ -40,6 +40,25 @@ class TestWordService(unittest.TestCase):
 				'Could not open word_list.txt file'
 			)
 
+	def test_add_valid_word(self):
+		pass
+
+	def test_add_invalid_word(self):
+		pass
+
+	def test_add_word_successfully(self):
+		pass
+
+	def test_add_word_database_error(self):
+		pass
+
+	def test_get_word(self):
+		pass
+
+	def test_get_word_database_error(self):
+		pass
+
+
 
 if __name__ == '__main__':
 	unittest.main()

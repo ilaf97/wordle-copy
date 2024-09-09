@@ -16,6 +16,7 @@ def add_guesses(guesses: str, user_id: int) -> Any:
 		response.status_code = 400
 		return response
 
+	#Do I need to explicitly handle an exceptionto return a 500 error? 
 	response = guess_service.add_guess(user_id, guesses.lower())
 	return app.make_response(f"Added user {user_id}'s guesses to database")
 
