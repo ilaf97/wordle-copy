@@ -4,6 +4,7 @@ from src.service.wordService import WordService
 from freezegun import freeze_time
 from tests.test_data import test_word_list, empty_word_list
 
+#TODO: create database fixture to test CRUD methods in service work
 
 class TestWordService(unittest.TestCase):
 

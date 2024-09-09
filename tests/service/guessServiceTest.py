@@ -25,13 +25,15 @@ class TestGuessService(unittest.TestCase):
 		test_string = '00003\n01201'
 		with self.assertRaises(ValueError) as e:
 			self.guess_service.convert_to_emoji(test_string)
-			self.assertEqual(e.__str__(), 'letter_scores contains unknown value 3')
+
+		self.assertEqual(str(e.exception), 'letter scores can only be 1, 2 or 3: found unknown value 3')
 
 	def test_convert_to_emoji_with_invalid_char_raises_exception(self):
 		test_string = '!@£$%\n^&*(?'
 		with self.assertRaises(ValueError) as e:
 			self.guess_service.convert_to_emoji(test_string)
-			self.assertEqual(e.__str__(), 'letter_scores contains unknown value 3')
+
+		self.assertEqual(str(e.exception), 'letter scores can only be 1, 2 or 3: found unknown value !')
 
 	@patch.object(WordService, 'get_word')
 	def test_check_guess(self, mock_get_word):

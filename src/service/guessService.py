@@ -1,10 +1,9 @@
 import logging
-from typing import Union
 from resources import GuessesTable
 from datetime import datetime
 from src.model.guessModel import Guess
 from src.service.wordService import WordService
-from app import db
+from src import db
 
 
 class GuessService:
@@ -31,7 +30,6 @@ class GuessService:
 			'correct_letter': '🟨',
 			'incorrect_letter': '⬛'
 		}
-		self.__query = db.session.query_property()
 
 	@staticmethod
 	def add_guess(user_id: int, guesses_str: str) -> Exception | None:
@@ -88,7 +86,8 @@ class GuessService:
 			elif letter_score == '0':
 				emoji_str = emoji_str + self.emojis['incorrect_letter']
 			else:
-				raise ValueError(f'letter_scores contains unknown value ({letter_score}')
+				#TODO: possibly implement a exception class instead of writing errors inline
+				raise ValueError(f'letter scores can only be 1, 2 or 3: found unknown value {letter_score}')
 		return emoji_str
 
 	def check_guess(self, guess):
