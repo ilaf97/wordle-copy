@@ -51,7 +51,7 @@ class GuessService:
 			db.session.add(guess)
 			db.session.commit()
 			logging.info('New guess added')
-		except Exception as e:
+		except Exception:
 			e = f'Cannot add new guess to database for user {user_id}'
 			logging.fatal(e)
 			raise IOError(e)

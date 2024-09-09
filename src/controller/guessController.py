@@ -1,7 +1,6 @@
 import datetime
 from typing import Any
 
-from flask import Response
 from src.service import guessService
 from app import app
 from src.utils.validations import Validators

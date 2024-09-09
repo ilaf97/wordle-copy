@@ -1,6 +1,5 @@
 import unittest
 from unittest.mock import patch
-from src.controller.guessController import *
 from src.service.wordService import WordService
 from app import app
 
