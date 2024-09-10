@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 from src.service.wordService import WordService
 from freezegun import freeze_time
-from tests.test_data import test_word_list, empty_word_list
+from tests.fixtures import test_word_list, empty_word_list
 
 #TODO: create database fixture to test CRUD methods in service work
 

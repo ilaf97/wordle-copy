@@ -96,11 +96,14 @@ class GuessService:
 		"""
 		# I think this method can be written into front end to use caching with the word to prevent multiple requests
 		# per user. This would otherwise overload the server if many guesses at once
-		word = self.__word_service.get_word()
-		letter_scores = '00000'
+		word = self.__word_service.get_word_on_date()
+		letter_scores = ["0", "0", "0", "0", "0"]
 		for i in range(len(guess)):
 			if guess[i] == word[i]: # type: ignore
-				letter_scores = letter_scores[:i] + '2' + letter_scores[i + 1:]
+				letter_scores[i] = "2"
 			elif guess[i] in word:
-				letter_scores = letter_scores[:i] + '1' + letter_scores[i + 1:]
-		return self.convert_to_emoji(letter_scores)
+				letter_scores[i] = "1"
+			elif guess[i] not in word:
+				letter_scores[i] = "0"
+		letter_scores_str = ''.join(letter_scores)
+		return self.convert_to_emoji(letter_scores_str)

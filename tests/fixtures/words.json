@@ -1,0 +1,32 @@
+[
+    {
+        "table": "word",
+        "records": [
+            {
+                "id": 1,
+                "word": "abuse",
+                "selected_date": null
+            },
+            {
+                "id": 2,
+                "word": "crown",
+                "selected_date": null
+            },
+            {
+                "id": 3,
+                "word": "books",
+                "selected_date": null
+            },
+            {
+                "id": 4,
+                "word": "grass",
+                "selected_date": null
+            },
+            {
+                "id": 5,
+                "word": "meats",
+                "selected_date": "2000-01-01"
+            }
+        ]
+    }
+]
