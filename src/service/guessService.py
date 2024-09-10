@@ -69,30 +69,31 @@ class GuessService:
 	def convert_to_emoji(self, letter_scores: str) -> str:
 		"""
 		Converts a complete user guess to a string of emojis representing the
-		accuracy of the guesses.
+		accuracy of the guess.
 
 		Returns:
-			emoji_str (str): The emoji representation of the guesses
+			emoji_str (str): The emoji representation of the guess
 		"""
 		emoji_str = ''
 		#TODO: replace with switch
 		for letter_score in letter_scores:
-			if letter_score == '\n':
-				emoji_str = emoji_str + '\n'
-			elif letter_score == '2':
-				emoji_str = emoji_str + self.emojis['correct_place']
-			elif letter_score == '1':
-				emoji_str = emoji_str + self.emojis['correct_letter']
-			elif letter_score == '0':
-				emoji_str = emoji_str + self.emojis['incorrect_letter']
-			else:
+			match letter_score:
+				case '-':
+					emoji_str = emoji_str + '-'
+				case '2':
+					emoji_str = emoji_str + self.emojis['correct_place']
+				case '1':
+					emoji_str = emoji_str + self.emojis['correct_letter']
+				case '0':
+					emoji_str = emoji_str + self.emojis['incorrect_letter']
+				case _:
 				#TODO: possibly implement a exception class instead of writing errors inline
-				raise ValueError(f'letter scores can only be 1, 2 or 3: found unknown value {letter_score}')
+					raise ValueError(f'letter scores can only be 1, 2 or 3: found unknown value {letter_score}')
 		return emoji_str
 
-	def check_guess(self, guess):
+	def check_individual_guess(self, guess) -> str:
 		"""
-		Checks the guess against the known word to assess the correctness.
+		Checks the latest guess against the known word to assess the correctness.
 		"""
 		# I think this method can be written into front end to use caching with the word to prevent multiple requests
 		# per user. This would otherwise overload the server if many guesses at once
@@ -105,5 +106,6 @@ class GuessService:
 				letter_scores[i] = "1"
 			elif guess[i] not in word:
 				letter_scores[i] = "0"
+
 		letter_scores_str = ''.join(letter_scores)
-		return self.convert_to_emoji(letter_scores_str)
+		return letter_scores_str

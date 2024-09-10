@@ -6,7 +6,37 @@
                 "id": 1,
                 "user_id": 1,
                 "guess_date": "2024-09-10",
-                "guess_str": "00000-00001-00020-11020-00221" 
+                "guess_str": "downs-apple-lemur-welly-revel-rebel" 
+            },
+            {
+                "id": 2,
+                "user_id": 1,
+                "guess_date": "2024-09-11",
+                "guess_str": "rebel-crave-tried-their" 
+            },
+            {
+                "id": 3,
+                "user_id": 1,
+                "guess_date": "2024-09-12",
+                "guess_str": "queen-numbs-grunt-ahead-burnt-event" 
+            },
+            {
+                "id": 4,
+                "user_id": 2,
+                "guess_date": "2024-09-10",
+                "guess_str": "burnt-reads-crams-erase-grasp-rebel" 
+            },
+            {
+                "id": 5,
+                "user_id": 2,
+                "guess_date": "2024-09-11",
+                "guess_str": "their" 
+            },
+            {
+                "id": 6,
+                "user_id": 3,
+                "guess_date": "2024-09-10",
+                "guess_str": "apple-apple-apple-apple-apple-apple"
             }
         ]
     }

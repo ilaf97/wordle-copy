@@ -21,15 +21,15 @@ def add_guesses(guesses: str, user_id: int) -> Any:
 	return app.make_response(f"Added user {user_id}'s guesses to database")
 
 
-@app.route('/guess/check-single-guess/<string:guess>/', methods=['GET'])
-def check_guess(guess: str) -> Any:
+@app.route('/guess/check-single-guess/<string:guess>/<string:total_score>', methods=['GET'])
+def check_guess(guess: str, total_score: str) -> Any:
 	valid_word = Validators.word(guess)
 	if guess != valid_word:
 		response = app.make_response('Invalid word')
 		response.status_code = 400
 		return response
 
-	guess_score = guess_service.check_guess(guess.lower())
+	guess_score = guess_service.check_individual_guess(guess.lower())
 	return app.make_response(guess_score)
 
 

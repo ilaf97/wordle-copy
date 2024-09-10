@@ -39,7 +39,7 @@ class TestGuessService(unittest.TestCase):
 	def test_check_guess(self, mock_get_word):
 		mock_get_word.return_value = 'river'
 		test_word = 'dried'
-		check_result = self.guess_service.check_guess(test_word)
+		check_result = self.guess_service.check_individual_guess(test_word)
 		self.assertEqual(check_result, '⬛🟨🟨🟩⬛')
 
 	#TODO: add the body for the below tests once database fixtures have been added
