@@ -74,8 +74,8 @@ class GuessService:
 		Returns:
 			emoji_str (str): The emoji representation of the guess
 		"""
+		# Add to front end to speed-up requests?
 		emoji_str = ''
-		#TODO: replace with switch
 		for letter_score in letter_scores:
 			match letter_score:
 				case '-':
@@ -97,7 +97,7 @@ class GuessService:
 		"""
 		# I think this method can be written into front end to use caching with the word to prevent multiple requests
 		# per user. This would otherwise overload the server if many guesses at once
-		word = self.__word_service.get_word_on_date()
+		word = self.__word_service.get_word()
 		letter_scores = ["0", "0", "0", "0", "0"]
 		for i in range(len(guess)):
 			if guess[i] == word[i]: # type: ignore

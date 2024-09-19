@@ -1,7 +1,6 @@
 from src import db
 from sqlalchemy import func
 
-
 class Guess(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	user_id = db.Column(db.Integer, nullable=False)

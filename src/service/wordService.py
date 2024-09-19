@@ -3,7 +3,6 @@ import logging
 from typing import Any
 
 from sqlalchemy import func
-from data import word_list
 from src.model.wordModel import Word
 from src.utils.validations import Validators
 from datetime import datetime, timedelta
@@ -34,7 +33,7 @@ class WordService:
                 logging.error(e)
                 return False
 
-    def get_word_on_date(self, date: str = '') -> str | None:
+    def get_word(self, date: str = '') -> str | None:
         if date != '' and datetime.strptime(date, '%Y-%m-%d') < datetime.now():
             word_object = Word.query.filter_by(date=Word.selected_date).first()
             if word_object is None:
@@ -45,16 +44,19 @@ class WordService:
         
     def select_random_word(self) -> str | None:
         max_id = db.session.query(func.max(Word.id)).scalar()
-        while True:
+        i = 0
+        while i < 50:
             id_to_select = random.randint(1 , max_id)
             word_object = db.session.query(Word).filter(Word.id==id_to_select).first()
             if word_object is None:
                 self._handle_null_word_object("id", id_to_select)
+                # Return as this indicates data issue
                 return
 
             three_months_ago = datetime.now() - timedelta(weeks=13)
             if word_object.selected_date is None or word_object.selected_date < three_months_ago:
                 return word_object.word
+            i += 1
         
     @staticmethod
     def get_current_date_str() -> str:

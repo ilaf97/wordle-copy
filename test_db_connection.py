@@ -1,3 +1,4 @@
+import os
 import psycopg2
 
 # Replace these values with your actual connection parameters
@@ -5,7 +6,7 @@ import psycopg2
 try:
     # Attempt to connect to CockroachDB
     conn = psycopg2.connect(
-        "postgresql://isaac.frewin:VYf13U7sFRN9nVIncfh9jA@wordle-copy-3792.6zw.aws-eu-west-1.cockroachlabs.cloud:26257/word-game?sslmode=verify-full")
+        os.environ['DATABASE_URL'])
     print("Connection to CockroachDB successful!")
 
     # Optionally, you can execute a test query here

@@ -20,12 +20,12 @@
             {
                 "id": 4,
                 "word": "grasp",
-                "selected_date": null
+                "selected_date": "RECENT"
             },
             {
                 "id": 5,
                 "word": "clown",
-                "selected_date": "2000-01-01"
+                "selected_date": "OLD"
             }
         ]
     }
