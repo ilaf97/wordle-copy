@@ -7,7 +7,8 @@ from src.model.wordModel import Word
 
 
 def get_fixtures(filename: str) -> dict:
-    return json.loads(f"{filename}.json")
+    with open(f'tests/fixtures/{filename}.json') as f:
+        return json.load(f)
     
 
 def load_guess_fixture_data(db: SQLAlchemy) -> None:

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import os
 import unittest
 
 from flask import Flask
@@ -16,6 +17,8 @@ class TestWordService(unittest.TestCase):
 
 	def setUp(self) -> None:
 		self.app = Flask(__name__)
+		self.app.config['TESTING'] = True
+		self.app.config["SQLALCHEMY_DATABASE_URI"] = os.environ['TEST_DATABASE_URL']
 		db.init_app(self.app)
 		self.fixture_data = get_fixtures('words')
 		with self.app.app_context():
