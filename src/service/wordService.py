@@ -2,7 +2,7 @@ import random
 import logging
 from typing import Any
 
-from sqlalchemy import func
+from sqlalchemy import func, update
 from src.model.wordModel import Word
 from src.utils.validations import Validators
 from datetime import datetime, timedelta
@@ -15,12 +15,23 @@ class WordService:
         e = f'Cannot retrieve word from database for {field} with value {str(field_value)}'
         logging.warning(e)
         raise IOError(e)
+    
+    def _add_word_selected_date(self, id: int) -> None:
+        update_statement = update(Word).where(Word.id==id).values(selected_date=datetime.now())
+        db.session.execute(update_statement)
+        db.session.commit()
 
     def add_word(self, word: str) -> bool:
+        existing_word = Word.query.filter_by(word=word).first()
+        if existing_word:
+            logging.warning(f"Word '{word}' already exists.")
+            return False
+    
         word_validation_error = Validators.word(word)
         if word_validation_error != word:
             logging.warning(word_validation_error)
             return False
+        
         else:
             try:
                 word_model = Word(word=word)
@@ -33,12 +44,13 @@ class WordService:
                 logging.error(e)
                 return False
 
-    def get_word(self, date: str = '') -> str | None:
-        if date != '' and datetime.strptime(date, '%Y-%m-%d') < datetime.now():
-            word_object = Word.query.filter_by(date=Word.selected_date).first()
+    def get_word(self, date: datetime | None = None) -> str | None:
+        if date is not None and date < datetime.now():
+            word_object = Word.query.filter_by(selected_date=date).first()
             if word_object is None:
                 self._handle_null_word_object("selected_date", date)
                 return
+            self._add_word_selected_date(word_object.id)
             return word_object.word
         return self.select_random_word()
         
@@ -53,8 +65,10 @@ class WordService:
                 # Return as this indicates data issue
                 return
 
-            three_months_ago = datetime.now() - timedelta(weeks=13)
+            three_months_ago: datetime = datetime.now() - timedelta(weeks=13)
+            print(word_object.selected_date)
             if word_object.selected_date is None or word_object.selected_date < three_months_ago:
+                self._add_word_selected_date(word_object.id)
                 return word_object.word
             i += 1
         
