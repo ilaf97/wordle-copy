@@ -3,6 +3,10 @@ import os
 from flask import Flask
 from src import db
 from src.controller import homeController, wordController
+
+def format_sqlite_conn_strings(conn_string: str) -> str:
+    return conn_string.split('=')[1].split(';')[0]
+
 def create_production_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
