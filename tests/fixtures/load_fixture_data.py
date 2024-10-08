@@ -21,7 +21,7 @@ def load_guess_fixture_data(db: SQLAlchemy) -> None:
                     guess_str=record['guess_str'],
                     user_id=record['user_id'],
                 )
-                guess.guess_date = datetime.strftime(record['guess_date'], '%Y-%m-%d')
+                guess.guess_date = datetime.strptime(record['guess_date'], '%Y-%m-%d')
                 db.session.add(guess)
                 db.session.commit()
 

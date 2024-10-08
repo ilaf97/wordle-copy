@@ -13,4 +13,4 @@ To initialise databases locally:
 3. Run `.database` and check that the new DB is listed
 4. Repeat for `$TEST_DATABASE_NAME`
 
-Run `python3 test_db_connection.db` to test you can connect to the databases.
+Run `python3 test_db_connection.py` to test you can connect to the databases.

@@ -111,13 +111,14 @@ class TestWordService(unittest.TestCase):
 	@patch('src.service.wordService.Word.query')
 	def test_get_word_valid_date(self, mock_query):
 		# Mock a valid word object returned by the query
+		word = 'clone'
 		mock_word = MagicMock()
-		mock_word.word = 'clone'
+		mock_word.word = word
 		mock_word.id = 1
 		mock_query.filter_by.return_value.first.return_value = mock_word
 		date = (datetime.now() - timedelta(days=1))
 		result = self.word_service.get_word(date)
-		self.assertEqual(result, 'clone')
+		self.assertEqual(result, word)
 		mock_query.filter_by.assert_called_once_with(selected_date=date)
 
 	@patch('src.service.wordService.Word.query')
