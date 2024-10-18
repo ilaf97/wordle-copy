@@ -33,7 +33,7 @@ class GuessService:
 		}
 
 	@staticmethod
-	def add_guesses(user_id: int, guesses_str: str) -> bool:
+	def add_guesses(user_id: int, guesses_str: str) -> None:
 		"""
 		Adds user's final guesses to database.
 
@@ -45,8 +45,10 @@ class GuessService:
 			ValueError: if no guess has been made
 		"""
 		valid_word = Validators.final_guesses(guesses_str)
-		if guesses_str != valid_word or user_id <= 0:
-			return False
+		if guesses_str != valid_word:
+			raise ValueError(f'Invalid guess string {guesses_str}')
+		if user_id <= 0:
+			raise ValueError(f'Invlaid user_id of {user_id}')
 		
 		guess = Guess(
 			user_id=user_id,
@@ -55,7 +57,6 @@ class GuessService:
 		db.session.add(guess)
 		db.session.commit()
 		logging.info('New guess added')
-		return True
 
 
 	@staticmethod

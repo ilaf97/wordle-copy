@@ -11,17 +11,20 @@ guess_service = guessService.GuessService()
 
 @app.route('/guess/add-guess/<string:guess>/<int:user_id>', methods=['POST'])
 def add_guesses(guesses: str, user_id: int) -> Any:
-
 	try:
-		guess_added = guess_service.add_guesses(user_id, guesses.lower())
+		guess_service.add_guesses(user_id, guesses.lower())
+		response = app.make_response(f"Added user {user_id}'s guesses to database")
+		response.status_code=200
+	except ValueError as e:
+		logging.error(e)
+		response = app.make_response(str(e))
+		response.status_code = 400
 	except Exception as e:
 		logging.error(e)
 		response = app.make_response(f"Failed to add user {user_id}'s guess to database. Error: {str(e)}")
 		response.status_code = 500
-	if not guess_added:
-		response = app.make_response('Invalid guess string')
-		response.status_code = 400
-	return app.make_response(f"Added user {user_id}'s guesses to database")
+	finally:
+		return response
 
 
 @app.route('/guess/check-single-guess/<string:guess>/<string:total_score>', methods=['GET'])

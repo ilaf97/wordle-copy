@@ -74,22 +74,24 @@ class TestGuessService(unittest.TestCase):
 
 	@patch.object(src, 'db', db)
 	def test_add_valid_guesses(self):
-		result = self.guess_service.add_guesses(99999, self.test_guesses_str)
-		self.assertTrue(result)
+		self.guess_service.add_guesses(user_id=99999, guesses_str=self.test_guesses_str)
 		guess_obj = db.session.query(Guess).order_by(Guess.id.desc()).first()
 		self.assertIsNotNone(guess_obj)
 		self.assertEqual(self.test_guesses_str, guess_obj.guess_str) # type: ignore
 
 	@patch.object(src, 'db', db)
 	def test_add_invalid_guesses(self):
-		with self.assertRaises(ValidationError):
-			result = self.guess_service.add_guesses(99999, "this is an invalid guess string")
-			self.assertFalse(result)
+		invalid_str = "this is an invalid guess string"
+		with self.assertRaises(ValidationError) as e:
+			result = self.guess_service.add_guesses(user_id=99999, guesses_str=invalid_str)
+			self.assertEqual(f"Invalid guess string {invalid_str}", e.exception)
 
 	@patch.object(src, 'db', db)
-	def test_add_invalid_user_id(self):
-		with self.assertRaises(Exception):
-			self.guess_service.add_guesses(-1, self.test_guesses_str)
+	def test_add_guess_invalid_user_id(self):
+		user_id = -1
+		with self.assertRaises(ValueError) as e:
+			self.guess_service.add_guesses(user_id=user_id, guesses_str=self.test_guesses_str)
+			self.assertEqual(f"Invalid user_id of {user_id}", e.exception)
 
 	@patch.object(src, 'db', db)
 	@patch('src.service.guessService.db.session.commit')
@@ -98,10 +100,9 @@ class TestGuessService(unittest.TestCase):
 		exception = Exception('Bad operation')
 		mock_db_commit.side_effect = exception
 		with self.assertRaises(Exception):
-			self.guess_service.add_guesses(99999, self.test_guesses_str)
+			self.guess_service.add_guesses(user_id=99999, guesses_str=self.test_guesses_str)
 		mock_db_add.assert_called_once()
 
-	@patch.object(src, 'db', db)
 	@patch('src.service.guessService.Guess.query')
 	def test_get_guess_valid_user_id(self, mock_query):
 		guess = 'clone-dream-pious-cream-scran'
@@ -115,7 +116,6 @@ class TestGuessService(unittest.TestCase):
 		self.assertEqual(result, guess) # type: ignore
 		mock_query.filter_by.assert_called_once_with(user_id=1, guess_date=date)
 		
-	@patch.object(src, 'db', db)
 	@patch('src.service.guessService.Guess.query')
 	def test_get_guess_invalid_user_id(self, mock_query):
 		guess = 'clone-dream-pious-cream-scran'
@@ -125,11 +125,39 @@ class TestGuessService(unittest.TestCase):
 		mock_guess.user_id = -1
 		mock_query.filter_by.return_value.first.return_value = mock_guess
 		date = datetime.now() - timedelta(days=1)
-		with self.assertRaises(Exception):
-			result = self.guess_service.get_guesses(user_id=-1, guess_date=date) # type: ignore
+		with self.assertRaises(ValueError) as e:
+			self.guess_service.get_guesses(user_id=-1, guess_date=date) # type: ignore
+			self.assertEqual("user_id must be a positive integer", e.exception)
 
-	def test_get_guesses_database_error(self):
-		pass
+
+	@patch('src.service.guessService.Guess.query')
+	def test_get_guess_invalid_date(self, mock_query):
+		guess = 'clone-dream-pious-cream-scran'
+		mock_guess = MagicMock()
+		mock_guess.guess_str = guess
+		mock_guess.id = 1
+		mock_guess.user_id = 1
+		mock_query.filter_by.return_value.first.return_value = mock_guess
+		date = datetime.now() + timedelta(days=1)
+		with self.assertRaises(ValueError) as e:
+			self.guess_service.get_guesses(user_id=1, guess_date=date) # type: ignore
+			self.assertEqual('guess_date cannot be in future', e.exception)
+
+
+	@patch.object(src, 'db', db)
+	@patch('src.service.guessService.Guess.query')
+	def test_get_guess_guess_not_found(self, mock_query):
+		guess = 'clone-dream-pious-cream-scran'
+		mock_user_id = 1
+		mock_guess = MagicMock()
+		mock_guess.guess_str = guess
+		mock_guess.id = 1
+		mock_guess.user_id = mock_user_id
+		mock_query.filter_by.return_value.first.return_value = None
+		date = datetime.now() - timedelta(days=1)
+		with self.assertRaises(IOError) as e:
+			self.guess_service.get_guesses(user_id=mock_user_id, guess_date=date) # type: ignore
+			self.assertEqual(f'Cannot retrieve guess from database for user {mock_user_id} on {date}', e.exception)
 
 
 if __name__ == '__main__':
