@@ -8,7 +8,6 @@ class Guess(db.Model):
 						   server_default=func.now(),
 						   nullable=False)
 	guess_str = db.Column(db.String(35), nullable=False)
-
 	def __init__(self, guess_str, user_id):
 		self.guess_str = guess_str
 		self.user_id = user_id

@@ -97,14 +97,14 @@ class TestWordService(unittest.TestCase):
 		result = self.word_service.add_word('fleas')
 		self.assertFalse(result)
 
-
 	@patch.object(src, 'db', db)
 	@patch('src.service.wordService.db.session.commit')
 	@patch('src.service.wordService.db.session.add')
 	def test_add_word_database_error(self, mock_db_add, mock_db_commit):
-		mock_db_commit.side_effect = Exception('Bad operation')
-		result = self.word_service.add_word('dream')
-		self.assertFalse(result)
+		exception = Exception('Bad operation')
+		mock_db_commit.side_effect = exception
+		with self.assertRaises(Exception):
+			self.word_service.add_word('dream')
 		mock_db_add.assert_called_once()
 
 	@patch.object(src, 'db', db)

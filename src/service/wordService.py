@@ -31,18 +31,13 @@ class WordService:
         if word_validation_error != word:
             logging.warning(word_validation_error)
             return False
-        
-        else:
-            try:
-                word_model = Word(word=word)
-                db.session.add(word_model)
-                db.session.commit()
-                logging.info('New word added')
-                return True
-            except Exception as e:
-                logging.error('Cannot add new word to database')
-                logging.error(e)
-                return False
+    
+        word_model = Word(word=word)
+        db.session.add(word_model)
+        db.session.commit()
+        logging.info('New word added')
+        return True
+   
 
     def get_word(self, date: datetime | None = None) -> str | None:
         if date is not None and date < datetime.now():

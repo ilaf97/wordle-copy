@@ -3,6 +3,7 @@ import os
 import unittest
 
 from flask import Flask
+from marshmallow import ValidationError
 from src import db
 import src
 from src.model.guessModel import Guess
@@ -16,6 +17,8 @@ from tests.fixtures.load_fixture_data import get_fixtures, load_guess_fixture_da
 class TestGuessService(unittest.TestCase):
 
 	guess_service = GuessService()
+	test_guesses_str = 'dream-fleas-tests-chuck-diver-quack'
+
 
 	def setUp(self) -> None:
 		self.app = Flask(__name__)
@@ -70,12 +73,23 @@ class TestGuessService(unittest.TestCase):
 	#TODO: add the body for the below tests once database fixtures have been added
 
 	@patch.object(src, 'db', db)
-	def test_add_valid_guess(self):
-		result = self.guess_service.add_guess(99999, 'fleas')
-		self.assertIsNone(result)
+	def test_add_valid_guesses(self):
+		result = self.guess_service.add_guesses(99999, self.test_guesses_str)
+		self.assertTrue(result)
 		guess_obj = db.session.query(Guess).order_by(Guess.id.desc()).first()
 		self.assertIsNotNone(guess_obj)
-		self.assertEqual('fleas', guess_obj.guess_str) # type: ignore
+		self.assertEqual(self.test_guesses_str, guess_obj.guess_str) # type: ignore
+
+	@patch.object(src, 'db', db)
+	def test_add_invalid_guesses(self):
+		with self.assertRaises(ValidationError):
+			result = self.guess_service.add_guesses(99999, "this is an invalid guess string")
+			self.assertFalse(result)
+
+	@patch.object(src, 'db', db)
+	def test_add_invalid_user_id(self):
+		with self.assertRaises(Exception):
+			self.guess_service.add_guesses(-1, self.test_guesses_str)
 
 	@patch.object(src, 'db', db)
 	@patch('src.service.guessService.db.session.commit')
@@ -84,8 +98,8 @@ class TestGuessService(unittest.TestCase):
 		exception = Exception('Bad operation')
 		mock_db_commit.side_effect = exception
 		with self.assertRaises(Exception):
-			result = self.guess_service.add_guess('dream') # type: ignore
-			mock_db_add.assert_called_once()
+			self.guess_service.add_guesses(99999, self.test_guesses_str)
+		mock_db_add.assert_called_once()
 
 	@patch.object(src, 'db', db)
 	@patch('src.service.guessService.Guess.query')
@@ -101,6 +115,18 @@ class TestGuessService(unittest.TestCase):
 		self.assertEqual(result, guess) # type: ignore
 		mock_query.filter_by.assert_called_once_with(user_id=1, guess_date=date)
 		
+	@patch.object(src, 'db', db)
+	@patch('src.service.guessService.Guess.query')
+	def test_get_guess_invalid_user_id(self, mock_query):
+		guess = 'clone-dream-pious-cream-scran'
+		mock_guess = MagicMock()
+		mock_guess.guess_str = guess
+		mock_guess.id = 1
+		mock_guess.user_id = -1
+		mock_query.filter_by.return_value.first.return_value = mock_guess
+		date = datetime.now() - timedelta(days=1)
+		with self.assertRaises(Exception):
+			result = self.guess_service.get_guesses(user_id=-1, guess_date=date) # type: ignore
 
 	def test_get_guesses_database_error(self):
 		pass

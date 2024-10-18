@@ -35,7 +35,7 @@ class Validators:
 	def final_guesses(guesses: str) -> ValidationError | None:
 		validator = validate.And(
 			validate.Length(
-				equal=36,
+				equal=35,
 				error=f'Guesses not 36 characters: {guesses}'),
 			validate.ContainsOnly(
 				choices=string.ascii_lowercase + '-',

@@ -1,4 +1,5 @@
 import datetime
+import logging
 from typing import Any
 
 from src.service import guessService
@@ -10,14 +11,16 @@ guess_service = guessService.GuessService()
 
 @app.route('/guess/add-guess/<string:guess>/<int:user_id>', methods=['POST'])
 def add_guesses(guesses: str, user_id: int) -> Any:
-	valid_word = Validators.final_guesses(guesses)
-	if guesses != valid_word:
-		response = app.make_response('Invalid final guesses string')
-		response.status_code = 400
-		return response
 
-	#Do I need to explicitly handle an exceptionto return a 500 error? 
-	response = guess_service.add_guess(user_id, guesses.lower())
+	try:
+		guess_added = guess_service.add_guesses(user_id, guesses.lower())
+	except Exception as e:
+		logging.error(e)
+		response = app.make_response(f"Failed to add user {user_id}'s guess to database. Error: {str(e)}")
+		response.status_code = 500
+	if not guess_added:
+		response = app.make_response('Invalid guess string')
+		response.status_code = 400
 	return app.make_response(f"Added user {user_id}'s guesses to database")
 
 

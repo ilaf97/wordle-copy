@@ -4,6 +4,7 @@ from datetime import datetime
 from src.model.guessModel import Guess
 from src.service.wordService import WordService
 from src import db
+from src.utils.validations import Validators
 
 
 class GuessService:
@@ -32,7 +33,7 @@ class GuessService:
 		}
 
 	@staticmethod
-	def add_guess(user_id: int, guesses_str: str) -> Exception | None:
+	def add_guesses(user_id: int, guesses_str: str) -> bool:
 		"""
 		Adds user's final guesses to database.
 
@@ -43,21 +44,27 @@ class GuessService:
 		Raises:
 			ValueError: if no guess has been made
 		"""
-		try:
-			guess = Guess(
-				user_id=user_id,
-				guess_str=guesses_str
-			)
-			db.session.add(guess)
-			db.session.commit()
-			logging.info('New guess added')
-		except Exception:
-			e = f'Cannot add new guess to database for user {user_id}'
-			logging.fatal(e)
-			raise IOError(e)
+		valid_word = Validators.final_guesses(guesses_str)
+		if guesses_str != valid_word or user_id <= 0:
+			return False
+		
+		guess = Guess(
+			user_id=user_id,
+			guess_str=guesses_str
+		)
+		db.session.add(guess)
+		db.session.commit()
+		logging.info('New guess added')
+		return True
+
 
 	@staticmethod
 	def get_guesses(user_id: int, guess_date: datetime) -> list[str] | None:
+		if guess_date > datetime.now():
+			raise ValueError('guess_date cannot be in future')
+		if user_id <=0:
+			raise ValueError('user_id must be positive integer')
+
 		guess = Guess.query.filter_by(guess_date=guess_date, user_id=user_id).first()
 		if guess is None:
 			e = f'Cannot retrieve guess from database for user {user_id} on {guess_date}'
