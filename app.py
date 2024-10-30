@@ -14,6 +14,7 @@ def create_production_app():
     db.init_app(app)
     with app.app_context():
         db.session.commit()
+        db.create_all()
     homeController.home_route(app)
     wordController.word_route(app)
     return app

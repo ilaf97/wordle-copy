@@ -1,20 +1,23 @@
+from datetime import datetime
 from typing import Any
 from src.service import wordService
 
 
-def word_route(app):
 
+def word_route(app):
 	word_service = wordService.WordService()
 
-	@app.route('/word/get-word/', defaults={'date': word_service.get_current_date_str()})
+	@app.route('/word/get-word/', defaults={'date': datetime.strftime(datetime.now(), '%Y-%m-%d')})
 	@app.route('/word/get-word/<string:date>', methods=['GET'])
 	def get_word(date: str) -> Any:
-		# check_date = Validators.date_format(date)
-		# if check_date:
-		# 	return app.make_response(check_date)
-		word = word_service.get_word(date)
-		if type(word) == Exception:
-			return app.make_response(500)
+		try:
+			word = word_service.get_word(datetime.strptime(date, "%Y-%m-%d"))
+			response = app.make_response(word)
+			response.status_code = 200
+		except IOError as e:
+			response = app.make_response(str(e))
+			response.status_code = 500
 
-		return f"<h1>{word}<h1>"
+
+		return f"<h1>{response.data}<h1>"
 		#return app.make_response(word)

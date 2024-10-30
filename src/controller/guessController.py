@@ -16,17 +16,15 @@ def add_guesses(guesses: str, user_id: int) -> Any:
 		response = app.make_response(f"Added user {user_id}'s guesses to database")
 		response.status_code=200
 	except ValueError as e:
-		logging.error(e)
 		response = app.make_response(str(e))
 		response.status_code = 400
 	except Exception as e:
-		logging.error(e)
 		response = app.make_response(f"Failed to add user {user_id}'s guess to database. Error: {str(e)}")
 		response.status_code = 500
 	finally:
 		return response
 
-
+# This will be done client side
 @app.route('/guess/check-single-guess/<string:guess>/<string:total_score>', methods=['GET'])
 def check_guess(guess: str, total_score: str) -> Any:
 	valid_word = Validators.word(guess)
@@ -38,7 +36,7 @@ def check_guess(guess: str, total_score: str) -> Any:
 	guess_score = guess_service.check_individual_guess(guess.lower())
 	return app.make_response(guess_score)
 
-
+# Will be done client side
 @app.route('/guess/get-summary-for-date/<string:date>/<int:user_id>', methods=['GET'])
 def get_all_guesses_emojis(date: str, user_id: int) -> Any:
 	date_check = Validators.date_format(date)

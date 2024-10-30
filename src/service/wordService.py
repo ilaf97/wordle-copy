@@ -39,7 +39,7 @@ class WordService:
         return True
    
 
-    def get_word(self, date: datetime | None = None) -> str | None:
+    def get_word(self, date: datetime | None = None) -> str:
         if date is not None and date < datetime.now():
             word_object = Word.query.filter_by(selected_date=date).first()
             if word_object is None:
@@ -47,9 +47,23 @@ class WordService:
                 return
             self._add_word_selected_date(word_object.id)
             return word_object.word
-        return self.select_random_word()
         
-    def select_random_word(self) -> str | None:
+        # Assume user retrieving today's word
+        todays_word_object = Word.query.filter_by(selected_date=datetime.now()).first()
+        if todays_word_object is not None:
+            return todays_word_object.word
+        
+        todays_word_object = self.select_random_word()
+        self._add_word_selected_date(todays_word_object.id) # type: ignore
+        return todays_word_object.word # type: ignore
+        
+        
+        
+    def select_random_word(self) -> Word | None:
+        """
+        Picks random word from DB that has not been selected for last 3 months.
+        Will searhc for 50 entries in DB before failing
+        """
         max_id = db.session.query(func.max(Word.id)).scalar()
         i = 0
         while i < 50:
@@ -58,16 +72,14 @@ class WordService:
             if word_object is None:
                 self._handle_null_word_object("id", id_to_select)
                 # Return as this indicates data issue
-                return
 
             three_months_ago: datetime = datetime.now() - timedelta(weeks=13)
             print(word_object.selected_date)
             if word_object.selected_date is None or word_object.selected_date < three_months_ago:
                 self._add_word_selected_date(word_object.id)
-                return word_object.word
+                return word_object
             i += 1
+            if i == 50:
+                # TODO: make this a custom error
+                raise ValueError("Failed to find word older than 3 months")
         
-    @staticmethod
-    def get_current_date_str() -> str:
-        curr_date = datetime.now()
-        return datetime.strftime(curr_date, '%Y-%m-%d')
