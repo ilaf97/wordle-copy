@@ -11,7 +11,7 @@ def word_route(app):
 	@app.route('/word/get-word/<string:date>', methods=['GET'])
 	def get_word(date: str) -> Any:
 		try:
-			word = word_service.get_word(datetime.strptime(date, "%Y-%m-%d"))
+			word = word_service.get_word(datetime.strptime(date, "%Y-%m-%d").date())
 			response = app.make_response(word)
 			response.status_code = 200
 		except IOError as e:

@@ -5,7 +5,7 @@ from typing import Any
 from sqlalchemy import func, update
 from src.model.wordModel import Word
 from src.utils.validations import Validators
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from src import db
 
 
@@ -39,12 +39,14 @@ class WordService:
         return True
    
 
-    def get_word(self, date: datetime | None = None) -> str:
-        if date is not None and date < datetime.now():
+    def get_word(self, date: date | None = None) -> str:
+        if date is not None and date < datetime.now().date():
+            print(f'Date of word to select = {date}')
+            print(date < datetime.now())
             word_object = Word.query.filter_by(selected_date=date).first()
             if word_object is None:
                 self._handle_null_word_object("selected_date", date)
-                return
+                print('FAILED')
             self._add_word_selected_date(word_object.id)
             return word_object.word
         
@@ -54,6 +56,7 @@ class WordService:
             return todays_word_object.word
         
         todays_word_object = self.select_random_word()
+        print("INSIDE")
         self._add_word_selected_date(todays_word_object.id) # type: ignore
         return todays_word_object.word # type: ignore
         
