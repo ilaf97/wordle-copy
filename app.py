@@ -3,7 +3,7 @@ import os
 
 from flask import Flask
 from src import db
-from src.controller import homeController, wordController
+from src.controller import guessController, homeController, wordController
 from etl import run_words_etl
 
 def format_sqlite_conn_strings(conn_string: str) -> str:
@@ -22,6 +22,7 @@ def create_production_app(run_etl: bool):
             run_words_etl()
     homeController.home_route(app)
     wordController.word_route(app)
+    guessController.guess_route(app)
     return app
 
 

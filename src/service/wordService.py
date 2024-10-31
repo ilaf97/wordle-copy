@@ -10,6 +10,7 @@ from src import db
 
 
 class WordService:
+    
 
     def _handle_null_word_object(self, field: str, field_value: Any):
         e = f'Cannot retrieve word from database for {field} with value {str(field_value)}'
@@ -17,7 +18,8 @@ class WordService:
         raise IOError(e)
     
     def _add_word_selected_date(self, id: int) -> None:
-        update_statement = update(Word).where(Word.id==id).values(selected_date=datetime.now())
+        print(f'ID: {id}')
+        update_statement = update(Word).where(Word.id==id).values(selected_date=datetime.now().date())
         db.session.execute(update_statement)
         db.session.commit()
 
@@ -41,23 +43,21 @@ class WordService:
 
     def get_word(self, date: date | None = None) -> str:
         if date is not None and date < datetime.now().date():
-            print(f'Date of word to select = {date}')
-            print(date < datetime.now())
             word_object = Word.query.filter_by(selected_date=date).first()
             if word_object is None:
                 self._handle_null_word_object("selected_date", date)
-                print('FAILED')
+                return
             self._add_word_selected_date(word_object.id)
             return word_object.word
         
         # Assume user retrieving today's word
-        todays_word_object = Word.query.filter_by(selected_date=datetime.now()).first()
+        todays_word_object = Word.query.filter_by(selected_date=datetime.now().date()).first()
+        #print(f'WORD: {todays_word_object.word}')
         if todays_word_object is not None:
             return todays_word_object.word
         
         todays_word_object = self.select_random_word()
         print("INSIDE")
-        self._add_word_selected_date(todays_word_object.id) # type: ignore
         return todays_word_object.word # type: ignore
         
         
@@ -77,7 +77,6 @@ class WordService:
                 # Return as this indicates data issue
 
             three_months_ago: datetime = datetime.now() - timedelta(weeks=13)
-            print(word_object.selected_date)
             if word_object.selected_date is None or word_object.selected_date < three_months_ago:
                 self._add_word_selected_date(word_object.id)
                 return word_object
