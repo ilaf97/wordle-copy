@@ -45,14 +45,18 @@ def guess_route(app):
 	
 	@app.route('/guess/check-all-guesses/<string:guesses>/', methods=['GET'])
 	def check_all_guesses(guesses: str) -> Any:
-		scores = ''
+		scores = []
 		individual_guesses = guesses.split('-')
+		if len(individual_guesses) > 6:
+			response = app.make_response('Can only have a maximum of 6 guesses')
+			response.status_code = 400
+			return response
 		for guess in individual_guesses:
 			invalid_response  = _check_payload_guess_valid(guess)
 			if invalid_response:
 				return invalid_response
-			scores += '-' + (guess_service.check_individual_guess(guess.lower()))
-		return scores
+			scores.append(guess_service.check_individual_guess(guess.lower()))
+		return app.make_response('-'.join(scores))
 
 	# Will be done client side
 	@app.route('/guess/get-summary-for-date/<string:date>/<int:user_id>', methods=['GET'])
