@@ -3,7 +3,9 @@ import os
 
 from flask import Flask
 from src import db
-from src.controller import guessController, homeController, wordController
+from src.controller.wordController import word
+from src.controller.guessController import guess
+from src.controller.userController import auth
 from etl import run_words_etl
 
 def format_sqlite_conn_strings(conn_string: str) -> str:
@@ -20,9 +22,10 @@ def create_production_app(run_etl: bool):
         db.create_all()
         if run_etl:
             run_words_etl()
-    homeController.home_route(app)
-    wordController.word_route(app)
-    guessController.guess_route(app)
+    app.register_blueprint(word, url_prefix='/word')
+    app.register_blueprint(guess, url_prefix='/guess')
+    app.register_blueprint(auth, url_prefix='/user')
+
     return app
 
 
@@ -34,20 +37,6 @@ def create_test_app():
     with app.app_context():
         db.session.commit()
     return app
-
-# try and get something working with the DB
-# word_service = WordService(app)
-# @app.route('/word/get-word/', defaults={'date': word_service.get_current_date_str()})
-# 	@app.route('/word/get-word/<string:date>', methods=['GET'])
-# 	def get_word(date: str) -> Any:
-# 		check_date = Validators.date_format(date)
-# 		# if check_date:
-# 		# 	return app.make_response(check_date)
-# 		word = word_service.get_word(date)``
-# 		if type(word) == Exception:
-# 			return app.make_response(500)
-#
-# 		return f"<h1>{word}<h1>"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

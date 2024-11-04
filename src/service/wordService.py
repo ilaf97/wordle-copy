@@ -4,6 +4,7 @@ from typing import Any
 
 from sqlalchemy import func, update
 from src.model.wordModel import Word
+from src.utils.exceptions import DatabaseError, WordError
 from src.utils.validations import Validators
 from datetime import datetime, timedelta, date
 from src import db
@@ -15,7 +16,7 @@ class WordService:
     def _handle_null_word_object(self, field: str, field_value: Any):
         e = f'Cannot retrieve word from database for {field} with value {str(field_value)}'
         logging.warning(e)
-        raise IOError(e)
+        raise DatabaseError(e)
     
     def _add_word_selected_date(self, id: int) -> None:
         print(f'ID: {id}')
@@ -34,11 +35,16 @@ class WordService:
             logging.warning(word_validation_error)
             return False
     
-        word_model = Word(word=word)
-        db.session.add(word_model)
-        db.session.commit()
-        logging.info('New word added')
-        return True
+        try:
+            word_model = Word(word=word)
+            db.session.add(word_model)
+            db.session.commit()
+            logging.info('New word added')
+            return True
+        except Exception as e:
+            logging.error("Failed to add new word to database")
+            logging.error(e)
+            raise DatabaseError(e)
    
 
     def get_word(self, date: date | None = None) -> str:
@@ -52,12 +58,10 @@ class WordService:
         
         # Assume user retrieving today's word
         todays_word_object = Word.query.filter_by(selected_date=datetime.now().date()).first()
-        #print(f'WORD: {todays_word_object.word}')
         if todays_word_object is not None:
             return todays_word_object.word
         
         todays_word_object = self.select_random_word()
-        print("INSIDE")
         return todays_word_object.word # type: ignore
         
         
@@ -69,6 +73,7 @@ class WordService:
         """
         max_id = db.session.query(func.max(Word.id)).scalar()
         i = 0
+        # Revisit this logic to keep searching and only raise error if all words checked
         while i < 50:
             id_to_select = random.randint(1 , max_id)
             word_object = db.session.query(Word).filter(Word.id==id_to_select).first()
@@ -83,5 +88,5 @@ class WordService:
             i += 1
             if i == 50:
                 # TODO: make this a custom error
-                raise ValueError("Failed to find word older than 3 months")
+                raise DatabaseError("Failed to find word older than 3 months")
         

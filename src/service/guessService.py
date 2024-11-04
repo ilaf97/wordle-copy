@@ -4,6 +4,7 @@ from datetime import datetime
 from src.model.guessModel import Guess
 from src.service.wordService import WordService
 from src import db
+from src.utils.exceptions import DatabaseError
 from src.utils.validations import Validators
 
 
@@ -40,9 +41,6 @@ class GuessService:
 		Parameters:
 			user_id (str): The id of the user making a guess
 			guess_str (str): String containing all user guesses
-
-		Raises:
-			ValueError: if no guess has been made
 		"""
 		valid_word = Validators.final_guesses(guesses_str)
 		if guesses_str != valid_word:
@@ -50,13 +48,18 @@ class GuessService:
 		if user_id <= 0:
 			raise ValueError(f'Invlaid user_id of {user_id}')
 		
-		guess = Guess(
-			user_id=user_id,
-			guess_str=guesses_str
-		)
-		db.session.add(guess)
-		db.session.commit()
-		logging.info('New guess added')
+		try:
+			guess = Guess(
+				user_id=user_id,
+				guess_str=guesses_str
+			)
+			db.session.add(guess)
+			db.session.commit()
+			logging.info('New guess added')
+		except Exception as e:
+			logging.error(f"Failed to add user {user_id}'s guess to database")
+			logging.error(e)
+			raise DatabaseError(e)
 
 
 	@staticmethod
@@ -70,7 +73,7 @@ class GuessService:
 		if guess is None:
 			e = f'Cannot retrieve guess from database for user {user_id} on {guess_date}'
 			logging.warning(e)
-			raise IOError(e)
+			raise DatabaseError(e)
 		return guess.guess_str
 			
 
