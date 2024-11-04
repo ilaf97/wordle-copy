@@ -2,6 +2,7 @@ import logging
 from src.model.userModel import User
 from src import db
 from src.utils.exceptions import DatabaseError
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class UserService:
@@ -13,7 +14,7 @@ class UserService:
 			user = User(
 				username=username,
 				email=email,
-				password=password
+				password=generate_password_hash(password)
 			)
 			db.session.add(user)
 			db.session.commit()

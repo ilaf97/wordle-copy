@@ -1,11 +1,12 @@
 from typing import Any
 
-from flask import Blueprint
+from flask import Blueprint, make_response
+from src.model.userModel import User
 from src.service.userService import UserService
-from app import app
+from src.utils.exceptions import DatabaseError
 from src.utils.validations import Validators
 
-auth = Blueprint('user', __name__)
+auth = Blueprint('auth', __name__)
 user_service = UserService()
 
 @auth.route('/signup')
@@ -13,26 +14,23 @@ def signup():
 	return 'Signup using url lol'
 
 #TODO: This must be changed to use form fields and avoid plain text!!!
-@auth.route('/signup/<str:email>/<str:username>', methods=['POST'])
-def signup_post(email: str, username: str, password, str) -> Any:
+@auth.route('/send-signup/<string:email>/<string:username>/<string:password>', methods=['GET', 'POST'])
+def signup_post(email: str, username: str, password: str) -> Any:
 	if len(username) > 20:
-		response = app.make_response('Username too long')
-		response.status_code = 401
-		return response
+		return make_response('Username too long', 400)
 
-	email_check = Validators.email(email)
-	if email_check != email:
-		response = app.make_response("Bad email")
-		response.status_code = 401
-		return response
+	if Validators.email(email) != email:
+		return make_response('Bad email', 400)
+	
+	if User.query.filter_by(email=email).first():
+		return make_response('Email already in use', 400)
 
-	response = user_service.add_user(email, username, password)
-	if response != 'Success':
-		response = app.make_response("Failed to add user to database")
-		response.status_code = 500
-
-	return app.make_response('Scuccessfully added new user')
-
+	try:
+		user_service.add_user(email, username, password)
+		return make_response(f'Added user {username} successfully', 200)
+	except DatabaseError:
+		return make_response("Failed to add user to database", 500)
+	
 @auth.route('/login')
 def login():
 	return 'login'

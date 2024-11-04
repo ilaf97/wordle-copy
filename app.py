@@ -24,7 +24,7 @@ def create_production_app(run_etl: bool):
             run_words_etl()
     app.register_blueprint(word, url_prefix='/word')
     app.register_blueprint(guess, url_prefix='/guess')
-    app.register_blueprint(auth, url_prefix='/user')
+    app.register_blueprint(auth, url_prefix='/auth')
 
     return app
 
