@@ -21,6 +21,9 @@ def _check_payload_guess_valid(guess: str) -> Any:
 def add_guesses() -> Any:
 	guesses = request.form.get('guesses')
 	user_id = current_user.id
+	if guess_service.check_if_already_guessed_today(user_id):
+		# This will return the completd guess template of emojis
+		return make_response('You have already guessed today! come back tomorrow :)')
 
 	try:
 		guess_service.add_guesses(user_id, guesses.lower()) # type: ignore

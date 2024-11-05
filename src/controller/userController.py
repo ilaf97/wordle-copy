@@ -23,6 +23,9 @@ def signup_post() -> Any:
 	if any(field is None for field in (email, username, password)):
 		return make_response('Missing values', 400)
 	
+	if username == 'admin':
+		return make_response("'admin' is a reserved username. Please choose another", 400)
+
 	if len(username) > 20: # type: ignore
 		return make_response('Username too long', 400)
 
@@ -65,5 +68,6 @@ def login_post():
 def logout():
 	logout_user()
 	return render_template('login.html')
+
 
 	

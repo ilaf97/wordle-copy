@@ -1,6 +1,6 @@
 import logging
 from resources import GuessesTable
-from datetime import datetime
+from datetime import date, datetime
 from src.model.guessModel import Guess
 from src.service.wordService import WordService
 from src import db
@@ -51,6 +51,7 @@ class GuessService:
 		try:
 			guess = Guess(
 				user_id=user_id,
+				guess_date=datetime.now().date(),
 				guess_str=guesses_str
 			)
 			db.session.add(guess)
@@ -61,10 +62,14 @@ class GuessService:
 			logging.error(e)
 			raise DatabaseError(e)
 
+	@staticmethod
+	def check_if_already_guessed_today(user_id: int) -> bool:
+		guess_today = Guess.query.filter_by(user_id=user_id, guess_date=datetime.now().date()).first()
+		return True if guess_today is not None else False
 
 	@staticmethod
-	def get_guesses(user_id: int, guess_date: datetime) -> list[str] | None:
-		if guess_date > datetime.now():
+	def get_guesses(user_id: int, guess_date: date) -> list[str] | None:
+		if guess_date > datetime.now().date():
 			raise ValueError('guess_date cannot be in future')
 		if user_id <=0:
 			raise ValueError('user_id must be positive integer')
