@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 from src.model.userModel import User
 from src import db
 from src.utils.exceptions import DatabaseError
@@ -23,3 +24,10 @@ class UserService:
 			logging.error('Cannot add new user to database')
 			logging.error(e)
 			raise DatabaseError(e)
+	
+	def check_credentials(self, email: str, password: str) -> bool:
+		user = self.get_user_by_email(email)
+		return False if not user or not check_password_hash(user.password, password) else True
+	
+	def get_user_by_email(self, email: str) -> User | None:
+		return User.query.filter_by(email=email).first()

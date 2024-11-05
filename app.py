@@ -1,12 +1,15 @@
 import argparse
 import os
 
+from flask_login import LoginManager
 from flask import Flask
 from src import db
 from src.controller.wordController import word
 from src.controller.guessController import guess
 from src.controller.userController import auth
-from etl import run_words_etl
+from etl import clear_users, run_words_etl
+
+login_manager = LoginManager()
 
 def format_sqlite_conn_strings(conn_string: str) -> str:
     return conn_string.split('=')[1].split(';')[0]
@@ -22,6 +25,7 @@ def create_production_app(run_etl: bool):
         db.create_all()
         if run_etl:
             run_words_etl()
+            clear_users()
     app.register_blueprint(word, url_prefix='/word')
     app.register_blueprint(guess, url_prefix='/guess')
     app.register_blueprint(auth, url_prefix='/auth')
