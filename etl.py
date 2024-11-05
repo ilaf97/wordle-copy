@@ -27,6 +27,10 @@ def run_words_etl():
     words = load_words()
     load_into_words_table(words)
 
+def clear_users():
+    User.query.delete()
+    db.session.commit()
+
 def create_admin_user():
     admin_user = User(
         username='admin',
