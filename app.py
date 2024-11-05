@@ -3,18 +3,19 @@ import os
 
 from flask_login import LoginManager
 from flask import Flask
+from etl.user import create_admin_user
+from etl.word import run_words_etl
 from src import db
 from src.controller.wordController import word
 from src.controller.guessController import guess
 from src.controller.userController import auth
-from etl import clear_users, run_words_etl
 from src.model.userModel import User
 
 
 def format_sqlite_conn_strings(conn_string: str) -> str:
     return conn_string.split('=')[1].split(';')[0]
 
-def create_production_app(run_etl: bool):
+def create_production_app(re_init_words: bool, create_admin: bool):
     
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
@@ -27,9 +28,10 @@ def create_production_app(run_etl: bool):
         db.session.commit()
         # Remove this after building ETL of data
         db.create_all()
-        if run_etl:
+        if re_init_words:
             run_words_etl()
-            clear_users()
+        if create_admin:
+            create_admin_user()
     app.register_blueprint(word, url_prefix='/word')
     app.register_blueprint(guess, url_prefix='/guess')
     app.register_blueprint(auth, url_prefix='/auth')
@@ -54,7 +56,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         prog='Wordle Copy Server',
         description='Launch the server for the World Copy game')
-    parser.add_argument('-e', '--etl', action='store_true')
+    parser.add_argument('-w', '--words', action='store_true', help='Re-initalise words table')
+    parser.add_argument('-ad', '--admin', action='store_true', help='Add admin user')
     args = parser.parse_args()
-    app = create_production_app(args.etl)
+    app = create_production_app(args.words, args.admin)
     app.run(debug=True)
