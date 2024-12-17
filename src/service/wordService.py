@@ -18,7 +18,7 @@ class WordService:
         logging.warning(e)
         raise DatabaseError(e)
     
-    def _add_word_selected_date(self, id: int) -> None:
+    def _update_selected_date(self, id: int) -> None:
         print(f'ID: {id}')
         update_statement = update(Word).where(Word.id==id).values(selected_date=datetime.now().date())
         db.session.execute(update_statement)
@@ -53,7 +53,8 @@ class WordService:
             if word_object is None:
                 self._handle_null_word_object("selected_date", date)
                 return
-            self._add_word_selected_date(word_object.id)
+            self._update_selected_date(word_object.id)
+            print(word_object.word)
             return word_object.word
         
         # Assume user retrieving today's word
@@ -69,7 +70,7 @@ class WordService:
     def select_random_word(self) -> Word | None:
         """
         Picks random word from DB that has not been selected for last 3 months.
-        Will searhc for 50 entries in DB before failing
+        Will search for 50 entries in DB before failing
         """
         max_id = db.session.query(func.max(Word.id)).scalar()
         i = 0
@@ -83,7 +84,7 @@ class WordService:
 
             three_months_ago: datetime = datetime.now() - timedelta(weeks=13)
             if word_object.selected_date is None or word_object.selected_date < three_months_ago:
-                self._add_word_selected_date(word_object.id)
+                self._update_selected_date(word_object.id)
                 return word_object
             i += 1
             if i == 50:

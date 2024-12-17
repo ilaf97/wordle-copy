@@ -1,6 +1,6 @@
 from typing import Any
 
-from flask import Blueprint, make_response, redirect, render_template, request
+from flask import Blueprint, make_response, render_template, request
 from flask_login import login_required, login_user, logout_user
 from src.model.userModel import User
 from src.service.userService import UserService
@@ -61,7 +61,7 @@ def login_post():
 	if not check_user_credentails:
 		return make_response('User not found', 401)
 	login_user(user_service.get_user_by_email(email), remember=remember) # type: ignore
-	return render_template('guesser.html')
+	return render_template('guess.html')
 
 @auth.route('/logout')
 @login_required

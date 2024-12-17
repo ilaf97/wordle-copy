@@ -1,6 +1,6 @@
 import datetime
 from typing import Any
-from flask import Blueprint, make_response, request
+from flask import Blueprint, make_response, render_template, request
 from flask_login import current_user, login_required
 
 from src.service import guessService
@@ -15,11 +15,16 @@ def _check_payload_guess_valid(guess: str) -> Any:
 	valid_word = Validators.word(guess)
 	if guess != valid_word:
 		return make_response('Invalid word', 400)
+	
+@guess.route('/add', methods=['GET'])
+@login_required
+def add_word():
+	return render_template('guess.html')
 
-@guess.route('/add-guesses', methods=['POST'])
+@guess.route('/add', methods=['POST'])
 @login_required
 def add_guesses() -> Any:
-	guesses = request.form.get('guesses')
+	guesses = request.form.get('guess')
 	user_id = current_user.id
 	if guess_service.check_if_already_guessed_today(user_id):
 		# This will return the completd guess template of emojis
@@ -34,7 +39,7 @@ def add_guesses() -> Any:
 		return make_response(f"Failed to add user {user_id}'s guess to database", 500)
 
 # This will be done client side too to reduce latency
-@guess.route('/check-single-guess/', methods=['GET'])
+@guess.route('/check-single/<string:guess>/', methods=['GET'])
 @login_required
 def check_guess(guess: str) -> Any:
 	invalid_response  = _check_payload_guess_valid(guess)
@@ -44,7 +49,7 @@ def check_guess(guess: str) -> Any:
 	guess_score = guess_service.check_individual_guess(guess.lower())
 	return make_response(guess_score)
 
-@guess.route('/check-all-guesses/<string:guesses>/', methods=['GET'])
+@guess.route('/check-all/<string:guesses>/', methods=['GET'])
 @login_required
 def check_all_guesses(guesses: str) -> Any:
 	scores = []
@@ -59,14 +64,14 @@ def check_all_guesses(guesses: str) -> Any:
 	return make_response('-'.join(scores), 200)
 
 # Will be done client side
-@guess.route('/guess/get-summary-for-date/<string:date>/<int:user_id>', methods=['GET'])
+@guess.route('/get-summary-for-date/<string:date>/<int:user_id>', methods=['GET'])
 @login_required
 def get_all_guesses_emojis(date: str, user_id: int) -> Any:
 	date_check = Validators.date_format(date)
 	if date_check != date:
 		return make_response("Invalid date", 400)
 
-	guess_str = guess_service.get_guesses(user_id, datetime.datetime.strptime(date, '%Y-%m-%d'))
+	guess_str = guess_service.get_guesses(user_id, datetime.datetime.strptime(date, '%Y-%m-%d').date())
 	if guess_str is None:
 		return make_response(f'Cannot retrieve guesses for {user_id} on {date}', 500)
 	else:

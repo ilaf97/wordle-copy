@@ -20,3 +20,6 @@ To initialise databases locally:
 5. Repeat for `$TEST_DATABASE_NAME`
 
 Run `python3 test_db_connection.py` to test you can connect to the databases.
+
+Running App Locally
+Run `poetry run python3 app.py` to run the application locally.

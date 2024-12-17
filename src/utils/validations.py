@@ -35,14 +35,15 @@ class Validators:
 	def final_guesses(guesses: str) -> ValidationError | None:
 		validator = validate.And(
 			validate.Length(
-				equal=35,
+				max=36,
+				min=5,
 				error=f'Guesses not 36 characters: {guesses}'),
 			validate.ContainsOnly(
 				choices=string.ascii_lowercase + '-',
 				error=f'Word contains non-alphabetic characters: {guesses}'
 			),
 			validate.Regexp(
-				regex='^[a-zA-Z]{5}-[a-zA-Z]{5}-[a-zA-Z]{5}-[a-zA-Z]{5}-[a-zA-Z]{5}-[a-zA-Z]{5}$',
+				regex='(?:[a-zA-Z0-9]+)?(?:-[a-zA-Z0-9]+)?(?:-[a-zA-Z0-9]+)?(?:-[a-zA-Z0-9]+)?(?:-[a-zA-Z0-9]+)?(?:-[a-zA-Z0-9]+)?',
 				error='Guesses string not formatted corretly'
 			)
 		)

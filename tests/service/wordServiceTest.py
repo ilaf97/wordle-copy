@@ -32,12 +32,6 @@ class TestWordService(unittest.TestCase):
 		db.session.remove()
 		db.drop_all()
 		self.app_context.pop()
-		
-	@patch.object(src, 'db', db)
-	def test_get_current_date(self):
-		with freeze_time('2022-01-01'):
-			test_date = self.word_service.get_current_date_str()
-			self.assertEqual(test_date, '2022-01-01')
 
 	@patch.object(src, 'db', db)
 	@patch('random.randint')

@@ -1,5 +1,5 @@
 import os
-from model.userModel import User
+from src.model.userModel import User
 from src import db
 
 def clear_users():

@@ -20,6 +20,7 @@ def load_guess_fixture_data(db: SQLAlchemy) -> None:
                 guess = Guess(
                     guess_str=record['guess_str'],
                     user_id=record['user_id'],
+                    guess_date=record['guess_date']
                 )
                 guess.guess_date = datetime.strptime(record['guess_date'], '%Y-%m-%d')
                 db.session.add(guess)
