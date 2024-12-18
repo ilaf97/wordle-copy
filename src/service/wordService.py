@@ -54,16 +54,15 @@ class WordService:
                 self._handle_null_word_object("selected_date", date)
                 return
             self._update_selected_date(word_object.id)
-            print(word_object.word)
             return word_object.word
         
         # Assume user retrieving today's word
         todays_word_object = Word.query.filter_by(selected_date=datetime.now().date()).first()
         if todays_word_object is not None:
-            return todays_word_object.word
+            return todays_word_object
         
         todays_word_object = self.select_random_word()
-        return todays_word_object.word # type: ignore
+        return todays_word_object # type: ignore
         
         
         
@@ -82,7 +81,7 @@ class WordService:
                 self._handle_null_word_object("id", id_to_select)
                 # Return as this indicates data issue
 
-            three_months_ago: datetime = datetime.now() - timedelta(weeks=13)
+            three_months_ago = (datetime.now() - timedelta(weeks=13)).date()
             if word_object.selected_date is None or word_object.selected_date < three_months_ago:
                 self._update_selected_date(word_object.id)
                 return word_object

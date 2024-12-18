@@ -1,16 +1,16 @@
-from datetime import datetime, timedelta
 import os
 import unittest
+import src
 
 from flask import Flask
+from datetime import datetime, timedelta
 from marshmallow import ValidationError
 from src import db
 from unittest.mock import MagicMock, patch
-import src
 from src.model.wordModel import Word
 from src.service.wordService import WordService
-from freezegun import freeze_time
 from tests.fixtures.load_fixture_data import get_fixtures, load_word_fixture_data
+from src.utils.exceptions import DatabaseError
 
 class TestWordService(unittest.TestCase):
 
@@ -39,13 +39,15 @@ class TestWordService(unittest.TestCase):
 		mock_randint.return_value = 1
 		expected_word = self.fixture_data[0]['records'][0]['word']
 		word_retrieved = self.word_service.select_random_word()
-		self.assertEqual(expected_word, word_retrieved)
+		self.assertIsNotNone(word_retrieved)
+		if word_retrieved is not None:
+			self.assertEqual(expected_word, word_retrieved.word)
 
 	@patch.object(src, 'db', db)
 	@patch('random.randint')
 	def test_select_nonexistent_word_fails(self, mock_randint):
 		mock_randint.return_value = 99999999
-		with self.assertRaises(IOError):
+		with self.assertRaises(DatabaseError):
 			word_retrieved = self.word_service.select_random_word()
 			self.assertIsNone(word_retrieved)
 
@@ -55,16 +57,20 @@ class TestWordService(unittest.TestCase):
 		mock_randint.side_effect = [4, 3]
 		expected_word = self.fixture_data[0]['records'][2]['word']
 		# While loop in function under test will continue until valid word found
-		word_retrieved: str | None = self.word_service.select_random_word()
-		self.assertEqual(expected_word, word_retrieved)
+		word_retrieved: Word | None = self.word_service.select_random_word()
+		self.assertIsNotNone(word_retrieved)
+		if word_retrieved is not None:
+			self.assertEqual(expected_word, word_retrieved.word)
 
 	@patch.object(src, 'db', db)
 	@patch('random.randint')
 	def test_select_old_word_succeeds(self, mock_randint):
 		mock_randint.return_value = 5
 		expected_word = self.fixture_data[0]['records'][4]['word']
-		word_retrieved: str | None = self.word_service.select_random_word()
-		self.assertEqual(expected_word, word_retrieved)
+		word_retrieved: Word | None = self.word_service.select_random_word()
+		self.assertIsNotNone(word_retrieved)
+		if word_retrieved is not None:
+			self.assertEqual(expected_word, word_retrieved.word)
 	
 				
 	@patch.object(src, 'db', db)
@@ -110,7 +116,7 @@ class TestWordService(unittest.TestCase):
 		mock_word.word = word
 		mock_word.id = 1
 		mock_query.filter_by.return_value.first.return_value = mock_word
-		date = (datetime.now() - timedelta(days=1))
+		date = (datetime.now() - timedelta(days=1)).date()
 		result = self.word_service.get_word(date)
 		self.assertEqual(result, word)
 		mock_query.filter_by.assert_called_once_with(selected_date=date)
@@ -119,7 +125,7 @@ class TestWordService(unittest.TestCase):
 	@patch.object(WordService, '_handle_null_word_object')
 	def test_get_word_valid_date_no_word_found(self, mock_handle_null_word_object, mock_query):
 		mock_query.filter_by.return_value.first.return_value = None
-		date = (datetime.now() - timedelta(days=1))
+		date = (datetime.now() - timedelta(days=1)).date()
 		result = self.word_service.get_word(date)
 		self.assertIsNone(result)
 		mock_handle_null_word_object.assert_called_once_with('selected_date', date)
@@ -127,8 +133,10 @@ class TestWordService(unittest.TestCase):
 
 	@patch.object(WordService, '_handle_null_word_object')
 	@patch.object(WordService, 'select_random_word')
-	def test_get_word_future_date(self, mock_select_random_word, mock_handle_null_word_object):
-		future_date = (datetime.now() + timedelta(days=1))
+	@patch('src.service.wordService.Word.query')
+	def test_get_word_future_date(self, mock_query, mock_select_random_word, mock_handle_null_word_object):
+		future_date = (datetime.now() + timedelta(days=1)).date()
+		mock_query.filter_by.return_value.first.return_value = None
 		mock_select_random_word.return_value = 'chair'
 		result = self.word_service.get_word(future_date)
 		mock_handle_null_word_object.assert_not_called()
@@ -136,11 +144,16 @@ class TestWordService(unittest.TestCase):
 		mock_select_random_word.assert_called_once()
 
 	@patch.object(WordService, 'select_random_word')
-	def test_get_word_no_date_passed(self, mock_select_random_word):
-		mock_select_random_word.return_value = 'chair'
+	@patch('src.service.wordService.Word.query')
+	def test_get_word_no_date_passed(self, mock_query, mock_select_random_word):
+		word = 'clone'
+		mock_word = MagicMock()
+		mock_word.word = word
+		mock_word.id = 1
+		mock_query.filter_by.return_value.first.return_value = 'chair'
 		result = self.word_service.get_word()
 		self.assertEqual(result, 'chair')
-		mock_select_random_word.assert_called_once()
+		mock_select_random_word.assert_not_called()
 
 if __name__ == '__main__':
 	unittest.main()

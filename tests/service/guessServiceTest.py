@@ -12,6 +12,7 @@ from src.service.wordService import WordService
 from unittest.mock import MagicMock, patch
 
 from tests.fixtures.load_fixture_data import get_fixtures, load_guess_fixture_data
+from src.utils.exceptions import DatabaseError
 
 
 class TestGuessService(unittest.TestCase):
@@ -111,7 +112,7 @@ class TestGuessService(unittest.TestCase):
 		mock_guess.id = 1
 		mock_guess.user_id = 1
 		mock_query.filter_by.return_value.first.return_value = mock_guess
-		date = datetime.now() - timedelta(days=1)
+		date = (datetime.now() - timedelta(days=1)).date()
 		result = self.guess_service.get_guesses(user_id=1, guess_date=date) # type: ignore
 		self.assertEqual(result, guess) # type: ignore
 		mock_query.filter_by.assert_called_once_with(user_id=1, guess_date=date)
@@ -124,7 +125,7 @@ class TestGuessService(unittest.TestCase):
 		mock_guess.id = 1
 		mock_guess.user_id = -1
 		mock_query.filter_by.return_value.first.return_value = mock_guess
-		date = datetime.now() - timedelta(days=1)
+		date = (datetime.now() - timedelta(days=1)).date()
 		with self.assertRaises(ValueError) as e:
 			self.guess_service.get_guesses(user_id=-1, guess_date=date) # type: ignore
 			self.assertEqual("user_id must be a positive integer", e.exception)
@@ -138,7 +139,7 @@ class TestGuessService(unittest.TestCase):
 		mock_guess.id = 1
 		mock_guess.user_id = 1
 		mock_query.filter_by.return_value.first.return_value = mock_guess
-		date = datetime.now() + timedelta(days=1)
+		date = (datetime.now() + timedelta(days=1)).date()
 		with self.assertRaises(ValueError) as e:
 			self.guess_service.get_guesses(user_id=1, guess_date=date) # type: ignore
 			self.assertEqual('guess_date cannot be in future', e.exception)
@@ -154,10 +155,23 @@ class TestGuessService(unittest.TestCase):
 		mock_guess.id = 1
 		mock_guess.user_id = mock_user_id
 		mock_query.filter_by.return_value.first.return_value = None
-		date = datetime.now() - timedelta(days=1)
-		with self.assertRaises(IOError) as e:
+		date = (datetime.now() - timedelta(days=1)).date()
+		with self.assertRaises(DatabaseError) as e:
 			self.guess_service.get_guesses(user_id=mock_user_id, guess_date=date) # type: ignore
 			self.assertEqual(f'Cannot retrieve guess from database for user {mock_user_id} on {date}', e.exception)
+
+	@patch.object(src, 'db', db)
+	@patch('src.service.guessService.Guess.query')
+	def test_guessed_already(self, mock_query):
+		mock_user_id = 1
+		mock_guess = MagicMock()
+		mock_query.filter_by.return_value.first.return_value = mock_guess
+		true_guess_value = self.guess_service.check_if_already_guessed_today(user_id=1)
+		self.assertTrue(true_guess_value)
+		
+		mock_query.filter_by.return_value.first.return_value = None
+		false_guess_value = self.guess_service.check_if_already_guessed_today(user_id=1)
+		self.assertFalse(false_guess_value)
 
 
 if __name__ == '__main__':
