@@ -18,14 +18,9 @@ word_service = WordService()
 def get_word(date: str) -> Any:
 	try:
 		word = word_service.get_word(datetime.strptime(date, "%Y-%m-%d").date())
-		response = make_response(word)
-		response.status_code = 200
+		return make_response(word, 200)
 	except DatabaseError as e:
-		response = make_response(str(e))
-		response.status_code = 500
-
-
-	return response
+		return make_response(str(e), 500)
 
 @word.route('/add-word', methods=['GET'])
 @login_required
@@ -42,7 +37,10 @@ def add_word_post():
 	word = request.form.get('word')
 	valid_word = Validators.word(word) # type: ignore
 	if valid_word:
-		word_service.add_word(word) # type: ignore
-		return make_response(f"Word '{word}' added successfully")
+		try:
+			word_service.add_word(word) # type: ignore
+			return make_response(f"Word '{word}' added successfully")
+		except DatabaseError:
+			return make_response(f"Failed to add word {word}", 500)
 	return make_response(f"Word '{word}' is not valid", 400)
 	

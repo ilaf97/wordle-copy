@@ -2,6 +2,7 @@ from flask import json
 from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
+from src.model.userModel import User
 from src.model.guessModel import Guess
 from src.model.wordModel import Word
 
@@ -14,7 +15,6 @@ def get_fixtures(filename: str) -> dict:
 def load_guess_fixture_data(db: SQLAlchemy) -> None:
     fixtures = get_fixtures('guesses')
     for fixture in fixtures:
-        # Ensure correct table always read in
         if fixture['table'] == 'guess':
             for record in fixture['records']:
                 guess = Guess(
@@ -30,7 +30,6 @@ def load_guess_fixture_data(db: SQLAlchemy) -> None:
 def load_word_fixture_data(db: SQLAlchemy) -> None:
     fixtures = get_fixtures('words')
     for fixture in fixtures:
-        # Ensure corrext table always read in
         if fixture['table'] == 'word':
             for record in fixture['records']:
                 word = Word(
@@ -43,5 +42,18 @@ def load_word_fixture_data(db: SQLAlchemy) -> None:
                     selected_date = datetime(2000, 1, 1)
                 word.selected_date = selected_date
                 db.session.add(word)
+                db.session.commit()
+
+def load_user_fixture_data(db: SQLAlchemy) -> None:
+    fixtures = get_fixtures('users')
+    for fixture in fixtures:
+        if fixture['table'] == 'user':
+            for record in fixture['records']:
+                user = User(
+                    username=record['username'],
+                    email=record['email'],
+                    password=record['password']
+                )
+                db.session.add(user)
                 db.session.commit()
 

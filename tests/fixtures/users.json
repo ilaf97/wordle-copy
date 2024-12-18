@@ -1,0 +1,19 @@
+[
+    {
+        "table": "user",
+        "records": [
+            {
+                "id": 1,
+                "username": "admin",
+                "email": "admin@test.com",
+                "password": "password"
+            },
+            {
+                "id": 2,
+                "username": "test",
+                "email": "test@test.com",
+                "password": "password"   
+            }
+        ]
+    }
+]
