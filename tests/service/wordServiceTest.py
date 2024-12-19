@@ -1,5 +1,6 @@
 import os
 import unittest
+from app import create_test_app
 import src
 
 from flask import Flask
@@ -17,12 +18,9 @@ class TestWordService(unittest.TestCase):
 	word_service = WordService()
 
 	def setUp(self) -> None:
-		self.app = Flask(__name__)
-		self.app.config['TESTING'] = True
-		self.app.config["SQLALCHEMY_DATABASE_URI"] = os.environ['TEST_DATABASE_URL']
-		db.init_app(self.app)
+		app = create_test_app()
 		self.fixture_data = get_fixtures('words')
-		self.app_context = self.app.app_context()
+		self.app_context = app.app_context()
 		self.app_context.push()
 		db.create_all()
 		load_word_fixture_data(db)

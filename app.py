@@ -48,8 +48,6 @@ def create_test_app():
     app.config['TESTING'] = True
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ['TEST_DATABASE_URL']
     db.init_app(app)
-    with app.app_context():
-        db.session.commit()
     return app
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ import os
 import unittest
 from unittest.mock import patch
 from flask import Flask
+from app import create_test_app
 import src
 from src.model.userModel import User
 from src.service.userService import UserService
@@ -14,12 +15,9 @@ class TestUserService(unittest.TestCase):
     user_service = UserService()
 
     def setUp(self) -> None:
-        self.app = Flask(__name__)
-        self.app.config['TESTING'] = True
-        self.app.config["SQLALCHEMY_DATABASE_URI"] = os.environ['TEST_DATABASE_URL']
-        db.init_app(self.app)
+        app = create_test_app()
         self.fixture_data = get_fixtures('users')
-        self.app_context = self.app.app_context()
+        self.app_context = app.app_context()
         self.app_context.push()
         db.create_all()
         User.query.delete()
