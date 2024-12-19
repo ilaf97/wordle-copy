@@ -42,15 +42,19 @@ def create_production_app(re_init_words: bool, create_admin: bool):
         if create_admin:
             create_admin_user()
     
+    _register_blueprints(app)
     _setup_login_manager(app)
     return app
 
 
 def create_test_app():
     app = Flask(__name__)
+    app.config['LOGIN_DISABLED'] = True
     app.config['TESTING'] = True
+    app.config['SERVER_NAME'] = 'localhost'
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ['TEST_DATABASE_URL']
     db.init_app(app)
+    _register_blueprints(app)
     _setup_login_manager(app)
     return app
 
