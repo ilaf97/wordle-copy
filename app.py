@@ -11,6 +11,17 @@ from src.controller.guessController import guess
 from src.controller.userController import auth
 from src.model.userModel import User
 
+def _setup_login_manager(app: Flask) -> None:
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+    
+def _register_blueprints(app: Flask) -> None:
+    app.register_blueprint(word, url_prefix='/word')
+    app.register_blueprint(guess, url_prefix='/guess')
+    app.register_blueprint(auth, url_prefix='/auth')
 
 def format_sqlite_conn_strings(conn_string: str) -> str:
     return conn_string.split('=')[1].split(';')[0]
@@ -22,8 +33,6 @@ def create_production_app(re_init_words: bool, create_admin: bool):
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
-    login_manager = LoginManager()
-    login_manager.init_app(app)
     with app.app_context():
         db.session.commit()
         # Remove this after building ETL of data
@@ -32,14 +41,8 @@ def create_production_app(re_init_words: bool, create_admin: bool):
             run_words_etl()
         if create_admin:
             create_admin_user()
-    app.register_blueprint(word, url_prefix='/word')
-    app.register_blueprint(guess, url_prefix='/guess')
-    app.register_blueprint(auth, url_prefix='/auth')
-
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(int(user_id))
-
+    
+    _setup_login_manager(app)
     return app
 
 
@@ -48,6 +51,7 @@ def create_test_app():
     app.config['TESTING'] = True
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ['TEST_DATABASE_URL']
     db.init_app(app)
+    _setup_login_manager(app)
     return app
 
 if __name__ == "__main__":

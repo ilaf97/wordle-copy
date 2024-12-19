@@ -59,10 +59,10 @@ class WordService:
         # Assume user retrieving today's word
         todays_word_object = Word.query.filter_by(selected_date=datetime.now().date()).first()
         if todays_word_object is not None:
-            return todays_word_object
+            return todays_word_object.word
         
         todays_word_object = self.select_random_word()
-        return todays_word_object # type: ignore
+        return todays_word_object.word # type: ignore
         
         
         
